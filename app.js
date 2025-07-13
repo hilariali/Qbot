@@ -15,10 +15,44 @@ class StudyBotApp {
 
     async initializeApp() {
         await this.loadConfig();
+        this.setupMarkdownRenderer();
         this.setupEventListeners();
         this.initializeChatbots();
         this.loadChatbotPrompts();
         this.setupSidebar();
+    }
+
+    setupMarkdownRenderer() {
+        // Configure marked.js for markdown parsing
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (__) {}
+                }
+                return code;
+            },
+            langPrefix: 'hljs language-',
+            breaks: true,
+            gfm: true
+        });
+
+        // Set up a custom renderer for better control
+        const renderer = new marked.Renderer();
+        
+        // Custom link renderer to open in new tab
+        renderer.link = function(href, title, text) {
+            return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+        };
+        
+        // Custom code block renderer
+        renderer.code = function(code, lang) {
+            const language = lang || 'text';
+            return `<pre class="code-block"><code class="language-${language}">${code}</code></pre>`;
+        };
+        
+        marked.use({ renderer });
     }
 
     async loadConfig() {
@@ -371,6 +405,43 @@ class StudyBotApp {
         this.currentSection = sectionId;
     }
 
+    renderMarkdown(content) {
+        try {
+            // Parse markdown
+            let html = marked.parse(content);
+            
+            // Create a temporary container to process the HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Process any math expressions with KaTeX
+            this.renderMathInElement(tempDiv);
+            
+            return tempDiv.innerHTML;
+        } catch (error) {
+            console.error('Error rendering markdown:', error);
+            return content; // Return original content if rendering fails
+        }
+    }
+
+    renderMathInElement(element) {
+        try {
+            // Use KaTeX auto-render to process math expressions
+            renderMathInElement(element, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '\\[', right: '\\]', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false}
+                ],
+                throwOnError: false,
+                errorColor: '#cc0000'
+            });
+        } catch (error) {
+            console.warn('Math rendering error:', error);
+        }
+    }
+
     addMessage(role, content) {
         const messagesContainer = document.getElementById('chat-messages');
         const messageDiv = document.createElement('div');
@@ -380,7 +451,9 @@ class StudyBotApp {
         if (role === 'assistant' && content.includes('<thinking>')) {
             const { mainContent, thinkingContent } = this.parseThinkingContent(content);
             
-            messageDiv.innerHTML = mainContent;
+            // Render main content with markdown
+            const renderedContent = this.renderMarkdown(mainContent);
+            messageDiv.innerHTML = renderedContent;
             
             if (thinkingContent) {
                 const thinkingDiv = document.createElement('div');
@@ -405,10 +478,23 @@ class StudyBotApp {
                 messageDiv.appendChild(thinkingDiv);
             }
         } else {
-            messageDiv.textContent = content;
+            // Render content with markdown for both user and assistant messages
+            if (role === 'assistant') {
+                const renderedContent = this.renderMarkdown(content);
+                messageDiv.innerHTML = renderedContent;
+            } else {
+                // For user messages, just escape HTML to prevent XSS
+                messageDiv.textContent = content;
+            }
         }
         
         messagesContainer.appendChild(messageDiv);
+        
+        // Render any math expressions in the new message
+        if (role === 'assistant') {
+            this.renderMathInElement(messageDiv);
+        }
+        
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
         // Store message
@@ -539,7 +625,9 @@ class StudyBotApp {
         
         this.currentMessages.forEach(message => {
             const role = message.role === 'user' ? 'Student' : 'AI Tutor';
-            const lines = doc.splitTextToSize(`${role}: ${message.content}`, 170);
+            // Strip markdown for PDF export
+            const plainText = message.content.replace(/[*_`~#]/g, '');
+            const lines = doc.splitTextToSize(`${role}: ${plainText}`, 170);
             
             lines.forEach(line => {
                 if (yPosition > 280) {
@@ -616,7 +704,9 @@ class StudyBotApp {
             let yPosition = 70;
             doc.setFontSize(12);
             
-            const lines = doc.splitTextToSize(summary, 170);
+            // Strip markdown for PDF export
+            const plainSummary = summary.replace(/[*_`~#]/g, '');
+            const lines = doc.splitTextToSize(plainSummary, 170);
             lines.forEach(line => {
                 if (yPosition > 280) {
                     doc.addPage();
