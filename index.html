@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBot - AI Revision Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>StudyBot - AI Revision Assistant</h1>
+            <p>Choose your subject and start chatting with AI tutors for exam revision</p>
+        </header>
+
+        <main>
+            <!-- Subject Selection -->
+            <section id="subject-selection" class="section active">
+                <h2>Select Your Subject</h2>
+                <div class="subject-grid">
+                    <div class="subject-card" data-subject="chinese">
+                        <h3>Chinese</h3>
+                        <p>Language and Literature</p>
+                    </div>
+                    <div class="subject-card" data-subject="english">
+                        <h3>English</h3>
+                        <p>Language and Literature</p>
+                    </div>
+                    <div class="subject-card" data-subject="math">
+                        <h3>Mathematics</h3>
+                        <p>Algebra, Geometry, Calculus</p>
+                    </div>
+                    <div class="subject-card" data-subject="science">
+                        <h3>Science</h3>
+                        <p>General Science</p>
+                    </div>
+                    <div class="subject-card" data-subject="physics">
+                        <h3>Physics</h3>
+                        <p>Mechanics, Waves, Electricity</p>
+                    </div>
+                    <div class="subject-card" data-subject="chemistry">
+                        <h3>Chemistry</h3>
+                        <p>Organic, Inorganic, Physical</p>
+                    </div>
+                    <div class="subject-card" data-subject="biology">
+                        <h3>Biology</h3>
+                        <p>Cell Biology, Genetics, Ecology</p>
+                    </div>
+                    <div class="subject-card" data-subject="history">
+                        <h3>History</h3>
+                        <p>World History, Local History</p>
+                    </div>
+                    <div class="subject-card" data-subject="geography">
+                        <h3>Geography</h3>
+                        <p>Physical and Human Geography</p>
+                    </div>
+                    <div class="subject-card" data-subject="ict">
+                        <h3>ICT</h3>
+                        <p>Computer Science, Programming</p>
+                    </div>
+                    <div class="subject-card" data-subject="steam">
+                        <h3>STEAM</h3>
+                        <p>Science, Technology, Engineering, Arts, Math</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chatbot Selection -->
+            <section id="chatbot-selection" class="section">
+                <div class="section-header">
+                    <button id="back-to-subjects" class="back-btn">← Back to Subjects</button>
+                    <h2 id="selected-subject-title">Select Your Chatbot</h2>
+                </div>
+                <div id="chatbot-grid" class="chatbot-grid">
+                    <!-- Chatbots will be populated dynamically -->
+                </div>
+            </section>
+
+            <!-- Chat Interface -->
+            <section id="chat-interface" class="section">
+                <div class="chat-header">
+                    <button id="back-to-chatbots" class="back-btn">← Back to Chatbots</button>
+                    <h3 id="current-chatbot-title">Chatbot</h3>
+                    <div class="chat-actions">
+                        <button id="export-chat" class="export-btn">Export Chat History</button>
+                        <button id="export-summary" class="export-btn">Export Summary & Guide</button>
+                    </div>
+                </div>
+                
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Messages will be populated dynamically -->
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <div class="input-wrapper">
+                            <textarea id="chat-input" placeholder="Type your question here..." rows="2"></textarea>
+                            <button id="send-btn">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p>AI is thinking...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
