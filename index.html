@@ -9,80 +9,233 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>StudyBot - AI Revision Assistant</h1>
-            <p>Choose your subject and start chatting with AI tutors for exam revision</p>
-        </header>
-
-        <main>
-            <!-- Subject Selection -->
-            <section id="subject-selection" class="section active">
-                <h2>Select Your Subject</h2>
-                <div class="subject-grid">
-                    <div class="subject-card" data-subject="chinese">
-                        <h3>Chinese</h3>
-                        <p>Language and Literature</p>
-                    </div>
-                    <div class="subject-card" data-subject="english">
-                        <h3>English</h3>
-                        <p>Language and Literature</p>
-                    </div>
-                    <div class="subject-card" data-subject="math">
-                        <h3>Mathematics</h3>
-                        <p>Algebra, Geometry, Calculus</p>
-                    </div>
-                    <div class="subject-card" data-subject="science">
-                        <h3>Science</h3>
-                        <p>General Science</p>
-                    </div>
-                    <div class="subject-card" data-subject="physics">
-                        <h3>Physics</h3>
-                        <p>Mechanics, Waves, Electricity</p>
-                    </div>
-                    <div class="subject-card" data-subject="chemistry">
-                        <h3>Chemistry</h3>
-                        <p>Organic, Inorganic, Physical</p>
-                    </div>
-                    <div class="subject-card" data-subject="biology">
-                        <h3>Biology</h3>
-                        <p>Cell Biology, Genetics, Ecology</p>
-                    </div>
-                    <div class="subject-card" data-subject="history">
-                        <h3>History</h3>
-                        <p>World History, Local History</p>
-                    </div>
-                    <div class="subject-card" data-subject="geography">
-                        <h3>Geography</h3>
-                        <p>Physical and Human Geography</p>
-                    </div>
-                    <div class="subject-card" data-subject="ict">
-                        <h3>ICT</h3>
-                        <p>Computer Science, Programming</p>
-                    </div>
-                    <div class="subject-card" data-subject="steam">
-                        <h3>STEAM</h3>
-                        <p>Science, Technology, Engineering, Arts, Math</p>
+    <div class="app-container">
+        <!-- Navigation Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2>StudyBot</h2>
+                    <p>AI Revision Assistant</p>
+                </div>
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-item active" data-section="home">
+                    <i class="icon">🏠</i>
+                    <span>Home</span>
+                </div>
+                
+                <div class="nav-category">
+                    <h3>Subjects</h3>
+                </div>
+                
+                <div class="nav-item" data-subject="chinese">
+                    <i class="icon">🇨🇳</i>
+                    <span>Chinese</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="chinese-grammar">Grammar Tutor</div>
+                        <div class="nav-subitem" data-chatbot="chinese-literature">Literature Guide</div>
+                        <div class="nav-subitem" data-chatbot="chinese-writing">Writing Assistant</div>
+                        <div class="nav-subitem" data-chatbot="chinese-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="chinese-2024">2024 Past Papers</div>
                     </div>
                 </div>
-            </section>
-
-            <!-- Chatbot Selection -->
-            <section id="chatbot-selection" class="section">
-                <div class="section-header">
-                    <button id="back-to-subjects" class="back-btn">← Back to Subjects</button>
-                    <h2 id="selected-subject-title">Select Your Chatbot</h2>
+                
+                <div class="nav-item" data-subject="english">
+                    <i class="icon">🇬🇧</i>
+                    <span>English</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="english-grammar">Grammar Expert</div>
+                        <div class="nav-subitem" data-chatbot="english-literature">Literature Analyst</div>
+                        <div class="nav-subitem" data-chatbot="english-writing">Essay Writing Coach</div>
+                        <div class="nav-subitem" data-chatbot="english-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="english-2024">2024 Past Papers</div>
+                    </div>
                 </div>
-                <div id="chatbot-grid" class="chatbot-grid">
-                    <!-- Chatbots will be populated dynamically -->
+                
+                <div class="nav-item" data-subject="math">
+                    <i class="icon">🔢</i>
+                    <span>Mathematics</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="math-algebra">Algebra Tutor</div>
+                        <div class="nav-subitem" data-chatbot="math-geometry">Geometry Guide</div>
+                        <div class="nav-subitem" data-chatbot="math-calculus">Calculus Coach</div>
+                        <div class="nav-subitem" data-chatbot="math-statistics">Statistics Helper</div>
+                        <div class="nav-subitem" data-chatbot="math-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="math-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="science">
+                    <i class="icon">🧪</i>
+                    <span>Science</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="science-general">General Science</div>
+                        <div class="nav-subitem" data-chatbot="science-experiments">Lab Experiments</div>
+                        <div class="nav-subitem" data-chatbot="science-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="science-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="physics">
+                    <i class="icon">⚛️</i>
+                    <span>Physics</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="physics-mechanics">Mechanics Tutor</div>
+                        <div class="nav-subitem" data-chatbot="physics-electricity">Electricity Guide</div>
+                        <div class="nav-subitem" data-chatbot="physics-waves">Waves & Sound</div>
+                        <div class="nav-subitem" data-chatbot="physics-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="physics-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="chemistry">
+                    <i class="icon">🧬</i>
+                    <span>Chemistry</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="chemistry-organic">Organic Chemistry</div>
+                        <div class="nav-subitem" data-chatbot="chemistry-inorganic">Inorganic Chemistry</div>
+                        <div class="nav-subitem" data-chatbot="chemistry-physical">Physical Chemistry</div>
+                        <div class="nav-subitem" data-chatbot="chemistry-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="chemistry-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="biology">
+                    <i class="icon">🧬</i>
+                    <span>Biology</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="biology-cell">Cell Biology</div>
+                        <div class="nav-subitem" data-chatbot="biology-genetics">Genetics Tutor</div>
+                        <div class="nav-subitem" data-chatbot="biology-ecology">Ecology Guide</div>
+                        <div class="nav-subitem" data-chatbot="biology-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="biology-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="history">
+                    <i class="icon">📚</i>
+                    <span>History</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="history-world">World History</div>
+                        <div class="nav-subitem" data-chatbot="history-local">Local History</div>
+                        <div class="nav-subitem" data-chatbot="history-analysis">Historical Analysis</div>
+                        <div class="nav-subitem" data-chatbot="history-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="history-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="geography">
+                    <i class="icon">🌍</i>
+                    <span>Geography</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="geography-physical">Physical Geography</div>
+                        <div class="nav-subitem" data-chatbot="geography-human">Human Geography</div>
+                        <div class="nav-subitem" data-chatbot="geography-maps">Maps & Navigation</div>
+                        <div class="nav-subitem" data-chatbot="geography-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="geography-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="ict">
+                    <i class="icon">💻</i>
+                    <span>ICT</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="ict-programming">Programming Tutor</div>
+                        <div class="nav-subitem" data-chatbot="ict-databases">Database Guide</div>
+                        <div class="nav-subitem" data-chatbot="ict-networks">Networking Basics</div>
+                        <div class="nav-subitem" data-chatbot="ict-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="ict-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-subject="steam">
+                    <i class="icon">🚀</i>
+                    <span>STEAM</span>
+                    <div class="nav-submenu">
+                        <div class="nav-subitem" data-chatbot="steam-projects">Project Guide</div>
+                        <div class="nav-subitem" data-chatbot="steam-innovation">Innovation Tutor</div>
+                        <div class="nav-subitem" data-chatbot="steam-integration">Subject Integration</div>
+                        <div class="nav-subitem" data-chatbot="steam-2023">2023 Past Papers</div>
+                        <div class="nav-subitem" data-chatbot="steam-2024">2024 Past Papers</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <section id="home" class="section active">
+                <div class="hero-section">
+                    <h1>Welcome to StudyBot</h1>
+                    <h2>Your AI-Powered Revision Assistant</h2>
+                    <p class="hero-description">
+                        StudyBot is designed to help students excel in their exams through personalized AI tutoring. 
+                        Choose from our specialized chatbots across multiple subjects and get instant help with your studies.
+                    </p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Personalized Learning</h3>
+                        <p>Get customized help based on your specific learning needs and exam requirements.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>11 Subjects Covered</h3>
+                        <p>From Chinese and English to Physics and STEAM - we've got all your subjects covered.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>Specialized AI Tutors</h3>
+                        <p>Each subject has multiple specialized tutors for topics, past papers, and exam preparation.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h3>Export & Save</h3>
+                        <p>Export your chat history and get AI-generated study guides and revision notes.</p>
+                    </div>
+                </div>
+                
+                <div class="getting-started">
+                    <h3>Getting Started</h3>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Choose Your Subject</h4>
+                                <p>Select from 11 available subjects in the sidebar navigation.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Pick a Specialized Tutor</h4>
+                                <p>Choose from topic-specific tutors or past paper specialists.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Start Learning</h4>
+                                <p>Begin your conversation and get instant, personalized help.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- Chat Interface -->
             <section id="chat-interface" class="section">
                 <div class="chat-header">
-                    <button id="back-to-chatbots" class="back-btn">← Back to Chatbots</button>
-                    <h3 id="current-chatbot-title">Chatbot</h3>
+                    <h3 id="current-chatbot-title">Select a Chatbot</h3>
                     <div class="chat-actions">
                         <button id="export-chat" class="export-btn">Export Chat History</button>
                         <button id="export-summary" class="export-btn">Export Summary & Guide</button>
@@ -91,13 +244,16 @@
                 
                 <div class="chat-container">
                     <div id="chat-messages" class="chat-messages">
-                        <!-- Messages will be populated dynamically -->
+                        <div class="welcome-message">
+                            <h4>Welcome to StudyBot!</h4>
+                            <p>Select a subject and chatbot from the sidebar to start your revision session.</p>
+                        </div>
                     </div>
                     
                     <div class="chat-input-container">
                         <div class="input-wrapper">
-                            <textarea id="chat-input" placeholder="Type your question here..." rows="2"></textarea>
-                            <button id="send-btn">Send</button>
+                            <textarea id="chat-input" placeholder="Type your question here..." rows="2" disabled></textarea>
+                            <button id="send-btn" disabled>Send</button>
                         </div>
                     </div>
                 </div>
@@ -105,10 +261,8 @@
         </main>
     </div>
 
-    <div id="loading" class="loading hidden">
-        <div class="spinner"></div>
-        <p>AI is thinking...</p>
-    </div>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
 
     <script src="app.js"></script>
 </body>

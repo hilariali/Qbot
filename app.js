@@ -1,6 +1,6 @@
 class StudyBotApp {
     constructor() {
-        this.currentSection = 'subject-selection';
+        this.currentSection = 'home';
         this.selectedSubject = null;
         this.selectedChatbot = null;
         this.currentMessages = [];
@@ -8,6 +8,7 @@ class StudyBotApp {
         this.model = null;
         this.client = null;
         this.chatbotPrompts = {};
+        this.chatbotData = {};
         
         this.initializeApp();
     }
@@ -17,6 +18,7 @@ class StudyBotApp {
         this.setupEventListeners();
         this.initializeChatbots();
         this.loadChatbotPrompts();
+        this.setupSidebar();
     }
 
     async loadConfig() {
@@ -44,20 +46,39 @@ class StudyBotApp {
     }
 
     setupEventListeners() {
-        // Subject selection
-        document.querySelectorAll('.subject-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                this.selectSubject(e.currentTarget.dataset.subject);
+        // Sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            this.toggleSidebar();
+        });
+
+        // Mobile overlay
+        document.getElementById('mobile-overlay').addEventListener('click', () => {
+            this.closeSidebar();
+        });
+
+        // Navigation items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const section = item.dataset.section;
+                const subject = item.dataset.subject;
+                
+                if (section === 'home') {
+                    this.showSection('home');
+                    this.setActiveNavItem(item);
+                } else if (subject) {
+                    this.toggleSubject(item, subject);
+                }
             });
         });
 
-        // Navigation buttons
-        document.getElementById('back-to-subjects').addEventListener('click', () => {
-            this.showSection('subject-selection');
-        });
-
-        document.getElementById('back-to-chatbots').addEventListener('click', () => {
-            this.showSection('chatbot-selection');
+        // Navigation subitems (chatbots)
+        document.querySelectorAll('.nav-subitem').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const chatbotId = item.dataset.chatbot;
+                this.selectChatbotFromSidebar(chatbotId, item);
+            });
         });
 
         // Chat functionality
@@ -80,6 +101,156 @@ class StudyBotApp {
         document.getElementById('export-summary').addEventListener('click', () => {
             this.exportSummaryAndGuide();
         });
+
+        // Window resize handling
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                this.closeSidebar();
+            }
+        });
+    }
+
+    setupSidebar() {
+        // Initialize sidebar state
+        this.sidebarActive = false;
+        
+        // Set initial active navigation item
+        const homeItem = document.querySelector('.nav-item[data-section="home"]');
+        if (homeItem) {
+            this.setActiveNavItem(homeItem);
+        }
+    }
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        
+        this.sidebarActive = !this.sidebarActive;
+        
+        if (this.sidebarActive) {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+        } else {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+    }
+
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        this.sidebarActive = false;
+    }
+
+    toggleSubject(navItem, subject) {
+        // Toggle expanded state
+        navItem.classList.toggle('expanded');
+        
+        // Set as active
+        this.setActiveNavItem(navItem);
+        
+        // Close other expanded items
+        document.querySelectorAll('.nav-item.expanded').forEach(item => {
+            if (item !== navItem) {
+                item.classList.remove('expanded');
+            }
+        });
+    }
+
+    setActiveNavItem(activeItem) {
+        // Remove active class from all nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add active class to selected item
+        activeItem.classList.add('active');
+    }
+
+    setActiveSubitem(activeItem) {
+        // Remove active class from all subitems
+        document.querySelectorAll('.nav-subitem').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add active class to selected subitem
+        activeItem.classList.add('active');
+    }
+
+    selectChatbotFromSidebar(chatbotId, subitem) {
+        // Find the chatbot data
+        const chatbot = this.findChatbotById(chatbotId);
+        
+        if (chatbot) {
+            this.selectedChatbot = chatbot;
+            this.selectedSubject = this.getSubjectFromChatbotId(chatbotId);
+            
+            // Set active subitem
+            this.setActiveSubitem(subitem);
+            
+            // Reset chat
+            this.currentMessages = [];
+            this.clearChatMessages();
+            
+            // Enable chat input
+            this.enableChatInput();
+            
+            // Update chat title
+            document.getElementById('current-chatbot-title').textContent = chatbot.name;
+            
+            // Add initial message
+            this.addMessage('assistant', `Hello! I'm your ${chatbot.name}. How can I help you with your studies today?`);
+            
+            // Show chat interface
+            this.showSection('chat-interface');
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                this.closeSidebar();
+            }
+        }
+    }
+
+    findChatbotById(chatbotId) {
+        for (const subject in this.chatbots) {
+            const chatbot = this.chatbots[subject].find(bot => bot.id === chatbotId);
+            if (chatbot) return chatbot;
+        }
+        return null;
+    }
+
+    getSubjectFromChatbotId(chatbotId) {
+        const subjectPrefix = chatbotId.split('-')[0];
+        return subjectPrefix;
+    }
+
+    enableChatInput() {
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const exportBtns = document.querySelectorAll('.export-btn');
+        
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        exportBtns.forEach(btn => btn.disabled = false);
+        
+        chatInput.placeholder = 'Type your question here...';
+    }
+
+    disableChatInput() {
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+        
+        chatInput.placeholder = 'Select a chatbot to start chatting...';
+    }
+
+    clearChatMessages() {
+        document.getElementById('chat-messages').innerHTML = '';
     }
 
     initializeChatbots() {
@@ -192,48 +363,6 @@ class StudyBotApp {
         }
     }
 
-    selectSubject(subject) {
-        this.selectedSubject = subject;
-        this.showChatbots(subject);
-        this.showSection('chatbot-selection');
-    }
-
-    showChatbots(subject) {
-        const chatbotGrid = document.getElementById('chatbot-grid');
-        const subjectTitle = document.getElementById('selected-subject-title');
-        
-        subjectTitle.textContent = `${subject.charAt(0).toUpperCase() + subject.slice(1)} - Select Your Chatbot`;
-        
-        chatbotGrid.innerHTML = '';
-        
-        if (this.chatbots[subject]) {
-            this.chatbots[subject].forEach(chatbot => {
-                const chatbotCard = document.createElement('div');
-                chatbotCard.className = 'chatbot-card';
-                chatbotCard.innerHTML = `
-                    <h4>${chatbot.name}</h4>
-                    <p>${chatbot.description}</p>
-                `;
-                chatbotCard.addEventListener('click', () => {
-                    this.selectChatbot(chatbot);
-                });
-                chatbotGrid.appendChild(chatbotCard);
-            });
-        }
-    }
-
-    selectChatbot(chatbot) {
-        this.selectedChatbot = chatbot;
-        this.currentMessages = [];
-        document.getElementById('current-chatbot-title').textContent = chatbot.name;
-        document.getElementById('chat-messages').innerHTML = '';
-        
-        // Add initial message
-        this.addMessage('assistant', `Hello! I'm your ${chatbot.name}. How can I help you with your studies today?`);
-        
-        this.showSection('chat-interface');
-    }
-
     showSection(sectionId) {
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
@@ -286,6 +415,27 @@ class StudyBotApp {
         this.currentMessages.push({ role, content });
     }
 
+    addLoadingMessage() {
+        const messagesContainer = document.getElementById('chat-messages');
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'chat-loading';
+        loadingDiv.id = 'chat-loading-message';
+        loadingDiv.innerHTML = `
+            <div class="chat-spinner"></div>
+            <span>AI is thinking...</span>
+        `;
+        
+        messagesContainer.appendChild(loadingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    removeLoadingMessage() {
+        const loadingMessage = document.getElementById('chat-loading-message');
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
+    }
+
     parseThinkingContent(content) {
         const thinkingRegex = /<thinking>(.*?)<\/thinking>/s;
         const match = content.match(thinkingRegex);
@@ -303,7 +453,7 @@ class StudyBotApp {
         const input = document.getElementById('chat-input');
         const message = input.value.trim();
         
-        if (!message) return;
+        if (!message || !this.selectedChatbot) return;
         
         input.value = '';
         document.getElementById('send-btn').disabled = true;
@@ -311,8 +461,8 @@ class StudyBotApp {
         // Add user message
         this.addMessage('user', message);
         
-        // Show loading
-        this.showLoading(true);
+        // Show loading in chat
+        this.addLoadingMessage();
         
         try {
             // Prepare messages for API
@@ -344,27 +494,32 @@ class StudyBotApp {
             });
             
             const aiMessage = response.data.choices[0].message.content;
+            
+            // Remove loading message
+            this.removeLoadingMessage();
+            
+            // Add AI response
             this.addMessage('assistant', aiMessage);
             
         } catch (error) {
             console.error('Error sending message:', error);
+            
+            // Remove loading message
+            this.removeLoadingMessage();
+            
+            // Add error message
             this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
         } finally {
-            this.showLoading(false);
             document.getElementById('send-btn').disabled = false;
         }
     }
 
-    showLoading(show) {
-        const loading = document.getElementById('loading');
-        if (show) {
-            loading.classList.remove('hidden');
-        } else {
-            loading.classList.add('hidden');
-        }
-    }
-
     exportChatHistory() {
+        if (!this.selectedChatbot || this.currentMessages.length === 0) {
+            alert('No chat history to export. Please have a conversation first.');
+            return;
+        }
+
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
@@ -402,7 +557,13 @@ class StudyBotApp {
     }
 
     async exportSummaryAndGuide() {
-        this.showLoading(true);
+        if (!this.selectedChatbot || this.currentMessages.length === 0) {
+            alert('No conversation to summarize. Please have a conversation first.');
+            return;
+        }
+
+        // Show loading for summary generation
+        this.addLoadingMessage();
         
         try {
             // Generate summary using AI
@@ -433,6 +594,9 @@ class StudyBotApp {
             });
             
             const summary = response.data.choices[0].message.content;
+            
+            // Remove loading message
+            this.removeLoadingMessage();
             
             // Create PDF
             const { jsPDF } = window.jspdf;
@@ -466,9 +630,11 @@ class StudyBotApp {
             
         } catch (error) {
             console.error('Error generating summary:', error);
+            
+            // Remove loading message
+            this.removeLoadingMessage();
+            
             alert('Error generating summary. Please try again.');
-        } finally {
-            this.showLoading(false);
         }
     }
 }
