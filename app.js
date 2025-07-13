@@ -1,5 +1,7 @@
 class StudyBotApp {
     constructor() {
+        this.currentSection = 'home';
+
         this.currentSection = 'subject-selection';
         this.selectedSubject = null;
         this.selectedChatbot = null;
@@ -8,12 +10,53 @@ class StudyBotApp {
         this.model = null;
         this.client = null;
         this.chatbotPrompts = {};
+        this.chatbotData = {};
+
         
         this.initializeApp();
     }
 
     async initializeApp() {
         await this.loadConfig();
+        this.setupMarkdownRenderer();
+        this.setupEventListeners();
+        this.initializeChatbots();
+        this.loadChatbotPrompts();
+        this.setupSidebar();
+    }
+
+    setupMarkdownRenderer() {
+        // Configure marked.js for markdown parsing
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (__) {}
+                }
+                return code;
+            },
+            langPrefix: 'hljs language-',
+            breaks: true,
+            gfm: true
+        });
+
+        // Set up a custom renderer for better control
+        const renderer = new marked.Renderer();
+        
+        // Custom link renderer to open in new tab
+        renderer.link = function(href, title, text) {
+            return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+        };
+        
+        // Custom code block renderer
+        renderer.code = function(code, lang) {
+            const language = lang || 'text';
+            return `<pre class="code-block"><code class="language-${language}">${code}</code></pre>`;
+        };
+        
+        marked.use({ renderer });
+
         this.setupEventListeners();
         this.initializeChatbots();
         this.loadChatbotPrompts();
@@ -44,6 +87,40 @@ class StudyBotApp {
     }
 
     setupEventListeners() {
+        // Sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            this.toggleSidebar();
+        });
+
+        // Mobile overlay
+        document.getElementById('mobile-overlay').addEventListener('click', () => {
+            this.closeSidebar();
+        });
+
+        // Navigation items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const section = item.dataset.section;
+                const subject = item.dataset.subject;
+                
+                if (section === 'home') {
+                    this.showSection('home');
+                    this.setActiveNavItem(item);
+                } else if (subject) {
+                    this.toggleSubject(item, subject);
+                }
+            });
+        });
+
+        // Navigation subitems (chatbots)
+        document.querySelectorAll('.nav-subitem').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const chatbotId = item.dataset.chatbot;
+                this.selectChatbotFromSidebar(chatbotId, item);
+            });
+
         // Subject selection
         document.querySelectorAll('.subject-card').forEach(card => {
             card.addEventListener('click', (e) => {
@@ -80,6 +157,157 @@ class StudyBotApp {
         document.getElementById('export-summary').addEventListener('click', () => {
             this.exportSummaryAndGuide();
         });
+
+        // Window resize handling
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                this.closeSidebar();
+            }
+        });
+    }
+
+    setupSidebar() {
+        // Initialize sidebar state
+        this.sidebarActive = false;
+        
+        // Set initial active navigation item
+        const homeItem = document.querySelector('.nav-item[data-section="home"]');
+        if (homeItem) {
+            this.setActiveNavItem(homeItem);
+        }
+    }
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        
+        this.sidebarActive = !this.sidebarActive;
+        
+        if (this.sidebarActive) {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+        } else {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+    }
+
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+        
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        this.sidebarActive = false;
+    }
+
+    toggleSubject(navItem, subject) {
+        // Toggle expanded state
+        navItem.classList.toggle('expanded');
+        
+        // Set as active
+        this.setActiveNavItem(navItem);
+        
+        // Close other expanded items
+        document.querySelectorAll('.nav-item.expanded').forEach(item => {
+            if (item !== navItem) {
+                item.classList.remove('expanded');
+            }
+        });
+    }
+
+    setActiveNavItem(activeItem) {
+        // Remove active class from all nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add active class to selected item
+        activeItem.classList.add('active');
+    }
+
+    setActiveSubitem(activeItem) {
+        // Remove active class from all subitems
+        document.querySelectorAll('.nav-subitem').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add active class to selected subitem
+        activeItem.classList.add('active');
+    }
+
+    selectChatbotFromSidebar(chatbotId, subitem) {
+        // Find the chatbot data
+        const chatbot = this.findChatbotById(chatbotId);
+        
+        if (chatbot) {
+            this.selectedChatbot = chatbot;
+            this.selectedSubject = this.getSubjectFromChatbotId(chatbotId);
+            
+            // Set active subitem
+            this.setActiveSubitem(subitem);
+            
+            // Reset chat
+            this.currentMessages = [];
+            this.clearChatMessages();
+            
+            // Enable chat input
+            this.enableChatInput();
+            
+            // Update chat title
+            document.getElementById('current-chatbot-title').textContent = chatbot.name;
+            
+            // Add initial message
+            this.addMessage('assistant', `Hello! I'm your ${chatbot.name}. How can I help you with your studies today?`);
+            
+            // Show chat interface
+            this.showSection('chat-interface');
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                this.closeSidebar();
+            }
+        }
+    }
+
+    findChatbotById(chatbotId) {
+        for (const subject in this.chatbots) {
+            const chatbot = this.chatbots[subject].find(bot => bot.id === chatbotId);
+            if (chatbot) return chatbot;
+        }
+        return null;
+    }
+
+    getSubjectFromChatbotId(chatbotId) {
+        const subjectPrefix = chatbotId.split('-')[0];
+        return subjectPrefix;
+    }
+
+    enableChatInput() {
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const exportBtns = document.querySelectorAll('.export-btn');
+        
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        exportBtns.forEach(btn => btn.disabled = false);
+        
+        chatInput.placeholder = 'Type your question here...';
+    }
+
+    disableChatInput() {
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+        
+        chatInput.placeholder = 'Select a chatbot to start chatting...';
+    }
+
+    clearChatMessages() {
+        document.getElementById('chat-messages').innerHTML = '';
+
     }
 
     initializeChatbots() {
@@ -242,6 +470,43 @@ class StudyBotApp {
         this.currentSection = sectionId;
     }
 
+    renderMarkdown(content) {
+        try {
+            // Parse markdown
+            let html = marked.parse(content);
+            
+            // Create a temporary container to process the HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Process any math expressions with KaTeX
+            this.renderMathInElement(tempDiv);
+            
+            return tempDiv.innerHTML;
+        } catch (error) {
+            console.error('Error rendering markdown:', error);
+            return content; // Return original content if rendering fails
+        }
+    }
+
+    renderMathInElement(element) {
+        try {
+            // Use KaTeX auto-render to process math expressions
+            renderMathInElement(element, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '\\[', right: '\\]', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false}
+                ],
+                throwOnError: false,
+                errorColor: '#cc0000'
+            });
+        } catch (error) {
+            console.warn('Math rendering error:', error);
+        }
+    }
+
     addMessage(role, content) {
         const messagesContainer = document.getElementById('chat-messages');
         const messageDiv = document.createElement('div');
@@ -251,6 +516,10 @@ class StudyBotApp {
         if (role === 'assistant' && content.includes('<thinking>')) {
             const { mainContent, thinkingContent } = this.parseThinkingContent(content);
             
+            // Render main content with markdown
+            const renderedContent = this.renderMarkdown(mainContent);
+            messageDiv.innerHTML = renderedContent;
+
             messageDiv.innerHTML = mainContent;
             
             if (thinkingContent) {
@@ -276,6 +545,23 @@ class StudyBotApp {
                 messageDiv.appendChild(thinkingDiv);
             }
         } else {
+            // Render content with markdown for both user and assistant messages
+            if (role === 'assistant') {
+                const renderedContent = this.renderMarkdown(content);
+                messageDiv.innerHTML = renderedContent;
+            } else {
+                // For user messages, just escape HTML to prevent XSS
+                messageDiv.textContent = content;
+            }
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        
+        // Render any math expressions in the new message
+        if (role === 'assistant') {
+            this.renderMathInElement(messageDiv);
+        }
+        
             messageDiv.textContent = content;
         }
         
@@ -285,6 +571,28 @@ class StudyBotApp {
         // Store message
         this.currentMessages.push({ role, content });
     }
+
+    addLoadingMessage() {
+        const messagesContainer = document.getElementById('chat-messages');
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'chat-loading';
+        loadingDiv.id = 'chat-loading-message';
+        loadingDiv.innerHTML = `
+            <div class="chat-spinner"></div>
+            <span>AI is thinking...</span>
+        `;
+        
+        messagesContainer.appendChild(loadingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    removeLoadingMessage() {
+        const loadingMessage = document.getElementById('chat-loading-message');
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
+    }
+
 
     parseThinkingContent(content) {
         const thinkingRegex = /<thinking>(.*?)<\/thinking>/s;
@@ -303,6 +611,8 @@ class StudyBotApp {
         const input = document.getElementById('chat-input');
         const message = input.value.trim();
         
+        if (!message || !this.selectedChatbot) return;
+
         if (!message) return;
         
         input.value = '';
@@ -311,6 +621,9 @@ class StudyBotApp {
         // Add user message
         this.addMessage('user', message);
         
+        // Show loading in chat
+        this.addLoadingMessage();
+
         // Show loading
         this.showLoading(true);
         
@@ -344,16 +657,37 @@ class StudyBotApp {
             });
             
             const aiMessage = response.data.choices[0].message.content;
+            
+            // Remove loading message
+            this.removeLoadingMessage();
+            
+            // Add AI response
+
             this.addMessage('assistant', aiMessage);
             
         } catch (error) {
             console.error('Error sending message:', error);
+            
+            // Remove loading message
+            this.removeLoadingMessage();
+            
+            // Add error message
+            this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+        } finally {
+
             this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
         } finally {
             this.showLoading(false);
             document.getElementById('send-btn').disabled = false;
         }
     }
+
+    exportChatHistory() {
+        if (!this.selectedChatbot || this.currentMessages.length === 0) {
+            alert('No chat history to export. Please have a conversation first.');
+            return;
+        }
+
 
     showLoading(show) {
         const loading = document.getElementById('loading');
@@ -384,6 +718,10 @@ class StudyBotApp {
         
         this.currentMessages.forEach(message => {
             const role = message.role === 'user' ? 'Student' : 'AI Tutor';
+            // Strip markdown for PDF export
+            const plainText = message.content.replace(/[*_`~#]/g, '');
+            const lines = doc.splitTextToSize(`${role}: ${plainText}`, 170);
+
             const lines = doc.splitTextToSize(`${role}: ${message.content}`, 170);
             
             lines.forEach(line => {
@@ -402,6 +740,14 @@ class StudyBotApp {
     }
 
     async exportSummaryAndGuide() {
+        if (!this.selectedChatbot || this.currentMessages.length === 0) {
+            alert('No conversation to summarize. Please have a conversation first.');
+            return;
+        }
+
+        // Show loading for summary generation
+        this.addLoadingMessage();
+
         this.showLoading(true);
         
         try {
@@ -434,6 +780,10 @@ class StudyBotApp {
             
             const summary = response.data.choices[0].message.content;
             
+            // Remove loading message
+            this.removeLoadingMessage();
+            
+
             // Create PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -452,6 +802,10 @@ class StudyBotApp {
             let yPosition = 70;
             doc.setFontSize(12);
             
+            // Strip markdown for PDF export
+            const plainSummary = summary.replace(/[*_`~#]/g, '');
+            const lines = doc.splitTextToSize(plainSummary, 170);
+
             const lines = doc.splitTextToSize(summary, 170);
             lines.forEach(line => {
                 if (yPosition > 280) {
@@ -466,6 +820,12 @@ class StudyBotApp {
             
         } catch (error) {
             console.error('Error generating summary:', error);
+            
+            // Remove loading message
+            this.removeLoadingMessage();
+            
+            alert('Error generating summary. Please try again.');
+
             alert('Error generating summary. Please try again.');
         } finally {
             this.showLoading(false);
