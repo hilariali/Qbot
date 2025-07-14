@@ -87,38 +87,60 @@ class StudyBotApp {
     }
 
     setupEventListeners() {
-        // Sidebar toggle
-        document.getElementById('sidebar-toggle').addEventListener('click', () => {
-            this.toggleSidebar();
-        });
+        // Sidebar toggle - with error handling
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleSidebar();
+            });
+        }
 
         // Mobile overlay
-        document.getElementById('mobile-overlay').addEventListener('click', () => {
-            this.closeSidebar();
-        });
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', () => {
+                this.closeSidebar();
+            });
+        }
 
-        // Navigation items
+        // Navigation items - with improved event handling
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
+                
                 const section = item.dataset.section;
                 const subject = item.dataset.subject;
+                
+                console.log('Nav item clicked:', { section, subject }); // Debug log
                 
                 if (section === 'home') {
                     this.showSection('home');
                     this.setActiveNavItem(item);
+                    // Close sidebar on mobile after selection
+                    if (window.innerWidth <= 768) {
+                        this.closeSidebar();
+                    }
                 } else if (subject) {
                     this.toggleSubject(item, subject);
                 }
             });
         });
 
-        // Navigation subitems (chatbots)
+        // Navigation subitems (chatbots) - with improved event handling
         document.querySelectorAll('.nav-subitem').forEach(item => {
             item.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
+                
                 const chatbotId = item.dataset.chatbot;
-                this.selectChatbotFromSidebar(chatbotId, item);
+                console.log('Subitem clicked:', chatbotId); // Debug log
+                
+                if (chatbotId) {
+                    this.selectChatbotFromSidebar(chatbotId, item);
+                }
             });
 
         // Subject selection
@@ -181,14 +203,25 @@ class StudyBotApp {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
         
+        console.log('Toggle sidebar called'); // Debug log
+        
+        if (!sidebar || !overlay) {
+            console.error('Sidebar or overlay element not found');
+            return;
+        }
+        
         this.sidebarActive = !this.sidebarActive;
+        
+        console.log('Sidebar active:', this.sidebarActive); // Debug log
         
         if (this.sidebarActive) {
             sidebar.classList.add('active');
             overlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
         } else {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
         }
     }
 
@@ -196,24 +229,37 @@ class StudyBotApp {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
         
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
+        if (sidebar && overlay) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+        
         this.sidebarActive = false;
     }
 
     toggleSubject(navItem, subject) {
-        // Toggle expanded state
-        navItem.classList.toggle('expanded');
+        console.log('Toggle subject called:', subject); // Debug log
         
-        // Set as active
-        this.setActiveNavItem(navItem);
-        
-        // Close other expanded items
+        // Close other expanded items first
         document.querySelectorAll('.nav-item.expanded').forEach(item => {
             if (item !== navItem) {
                 item.classList.remove('expanded');
             }
         });
+        
+        // Toggle expanded state
+        const isExpanded = navItem.classList.contains('expanded');
+        if (isExpanded) {
+            navItem.classList.remove('expanded');
+        } else {
+            navItem.classList.add('expanded');
+        }
+        
+        // Set as active
+        this.setActiveNavItem(navItem);
+        
+        console.log('Subject expanded:', !isExpanded); // Debug log
     }
 
     setActiveNavItem(activeItem) {
