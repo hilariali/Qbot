@@ -74,7 +74,7 @@ class StudyBotApp {
 
     setupEventListeners() {
         console.log('Setting up event listeners...');
-        
+      
         // Sidebar toggle - with error handling
         const sidebarToggle = document.getElementById('sidebar-toggle');
         if (sidebarToggle) {
@@ -102,6 +102,8 @@ class StudyBotApp {
                 const section = item.dataset.section;
                 const subject = item.dataset.subject;
                 
+                console.log('Nav item clicked:', { section, subject }); // Debug log
+                
                 if (section === 'home') {
                     this.showSection('home');
                     this.setActiveNavItem(item);
@@ -122,6 +124,7 @@ class StudyBotApp {
                 e.stopPropagation();
                 
                 const chatbotId = item.dataset.chatbot;
+                console.log('Subitem clicked:', chatbotId); // Debug log
                 
                 if (chatbotId) {
                     this.selectChatbotFromSidebar(chatbotId, item);
@@ -195,12 +198,16 @@ class StudyBotApp {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
         
+        console.log('Toggle sidebar called'); // Debug log
+        
         if (!sidebar || !overlay) {
             console.error('Sidebar or overlay element not found');
             return;
         }
         
         this.sidebarActive = !this.sidebarActive;
+        
+        console.log('Sidebar active:', this.sidebarActive); // Debug log
         
         if (this.sidebarActive) {
             sidebar.classList.add('active');
@@ -210,6 +217,11 @@ class StudyBotApp {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        } else {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
         }
     }
 
@@ -221,12 +233,15 @@ class StudyBotApp {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+            document.body.style.overflow = ''; // Restore scrolling
         }
         
         this.sidebarActive = false;
     }
 
     toggleSubject(navItem, subject) {
+        console.log('Toggle subject called:', subject); // Debug log
+        
         // Close other expanded items first
         document.querySelectorAll('.nav-item.expanded').forEach(item => {
             if (item !== navItem) {
@@ -244,6 +259,8 @@ class StudyBotApp {
         
         // Set as active
         this.setActiveNavItem(navItem);
+        
+        console.log('Subject expanded:', !isExpanded); // Debug log
     }
 
     setActiveNavItem(activeItem) {
