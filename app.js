@@ -1,6 +1,8 @@
 class StudyBotApp {
     constructor() {
         this.currentSection = 'home';
+
+        this.currentSection = 'subject-selection';
         this.selectedSubject = null;
         this.selectedChatbot = null;
         this.currentMessages = [];
@@ -9,6 +11,7 @@ class StudyBotApp {
         this.client = null;
         this.chatbotPrompts = {};
         this.chatbotData = {};
+
         
         this.initializeApp();
     }
@@ -53,6 +56,10 @@ class StudyBotApp {
         };
         
         marked.use({ renderer });
+
+        this.setupEventListeners();
+        this.initializeChatbots();
+        this.loadChatbotPrompts();
     }
 
     async loadConfig() {
@@ -135,6 +142,21 @@ class StudyBotApp {
                     this.selectChatbotFromSidebar(chatbotId, item);
                 }
             });
+
+        // Subject selection
+        document.querySelectorAll('.subject-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                this.selectSubject(e.currentTarget.dataset.subject);
+            });
+        });
+
+        // Navigation buttons
+        document.getElementById('back-to-subjects').addEventListener('click', () => {
+            this.showSection('subject-selection');
+        });
+
+        document.getElementById('back-to-chatbots').addEventListener('click', () => {
+            this.showSection('chatbot-selection');
         });
 
         // Chat functionality
@@ -331,6 +353,7 @@ class StudyBotApp {
 
     clearChatMessages() {
         document.getElementById('chat-messages').innerHTML = '';
+
     }
 
     initializeChatbots() {
@@ -443,6 +466,48 @@ class StudyBotApp {
         }
     }
 
+    selectSubject(subject) {
+        this.selectedSubject = subject;
+        this.showChatbots(subject);
+        this.showSection('chatbot-selection');
+    }
+
+    showChatbots(subject) {
+        const chatbotGrid = document.getElementById('chatbot-grid');
+        const subjectTitle = document.getElementById('selected-subject-title');
+        
+        subjectTitle.textContent = `${subject.charAt(0).toUpperCase() + subject.slice(1)} - Select Your Chatbot`;
+        
+        chatbotGrid.innerHTML = '';
+        
+        if (this.chatbots[subject]) {
+            this.chatbots[subject].forEach(chatbot => {
+                const chatbotCard = document.createElement('div');
+                chatbotCard.className = 'chatbot-card';
+                chatbotCard.innerHTML = `
+                    <h4>${chatbot.name}</h4>
+                    <p>${chatbot.description}</p>
+                `;
+                chatbotCard.addEventListener('click', () => {
+                    this.selectChatbot(chatbot);
+                });
+                chatbotGrid.appendChild(chatbotCard);
+            });
+        }
+    }
+
+    selectChatbot(chatbot) {
+        this.selectedChatbot = chatbot;
+        this.currentMessages = [];
+        document.getElementById('current-chatbot-title').textContent = chatbot.name;
+        document.getElementById('chat-messages').innerHTML = '';
+        
+        // Add initial message
+        this.addMessage('assistant', `Hello! I'm your ${chatbot.name}. How can I help you with your studies today?`);
+        
+        this.showSection('chat-interface');
+    }
+
     showSection(sectionId) {
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
@@ -500,6 +565,8 @@ class StudyBotApp {
             // Render main content with markdown
             const renderedContent = this.renderMarkdown(mainContent);
             messageDiv.innerHTML = renderedContent;
+
+            messageDiv.innerHTML = mainContent;
             
             if (thinkingContent) {
                 const thinkingDiv = document.createElement('div');
@@ -541,6 +608,10 @@ class StudyBotApp {
             this.renderMathInElement(messageDiv);
         }
         
+            messageDiv.textContent = content;
+        }
+        
+        messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
         // Store message
@@ -568,6 +639,7 @@ class StudyBotApp {
         }
     }
 
+
     parseThinkingContent(content) {
         const thinkingRegex = /<thinking>(.*?)<\/thinking>/s;
         const match = content.match(thinkingRegex);
@@ -586,6 +658,8 @@ class StudyBotApp {
         const message = input.value.trim();
         
         if (!message || !this.selectedChatbot) return;
+
+        if (!message) return;
         
         input.value = '';
         document.getElementById('send-btn').disabled = true;
@@ -595,6 +669,9 @@ class StudyBotApp {
         
         // Show loading in chat
         this.addLoadingMessage();
+
+        // Show loading
+        this.showLoading(true);
         
         try {
             // Prepare messages for API
@@ -631,6 +708,7 @@ class StudyBotApp {
             this.removeLoadingMessage();
             
             // Add AI response
+
             this.addMessage('assistant', aiMessage);
             
         } catch (error) {
@@ -642,6 +720,10 @@ class StudyBotApp {
             // Add error message
             this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
         } finally {
+
+            this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+        } finally {
+            this.showLoading(false);
             document.getElementById('send-btn').disabled = false;
         }
     }
@@ -652,6 +734,17 @@ class StudyBotApp {
             return;
         }
 
+
+    showLoading(show) {
+        const loading = document.getElementById('loading');
+        if (show) {
+            loading.classList.remove('hidden');
+        } else {
+            loading.classList.add('hidden');
+        }
+    }
+
+    exportChatHistory() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
@@ -674,6 +767,8 @@ class StudyBotApp {
             // Strip markdown for PDF export
             const plainText = message.content.replace(/[*_`~#]/g, '');
             const lines = doc.splitTextToSize(`${role}: ${plainText}`, 170);
+
+            const lines = doc.splitTextToSize(`${role}: ${message.content}`, 170);
             
             lines.forEach(line => {
                 if (yPosition > 280) {
@@ -698,6 +793,8 @@ class StudyBotApp {
 
         // Show loading for summary generation
         this.addLoadingMessage();
+
+        this.showLoading(true);
         
         try {
             // Generate summary using AI
@@ -732,6 +829,7 @@ class StudyBotApp {
             // Remove loading message
             this.removeLoadingMessage();
             
+
             // Create PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -753,6 +851,8 @@ class StudyBotApp {
             // Strip markdown for PDF export
             const plainSummary = summary.replace(/[*_`~#]/g, '');
             const lines = doc.splitTextToSize(plainSummary, 170);
+
+            const lines = doc.splitTextToSize(summary, 170);
             lines.forEach(line => {
                 if (yPosition > 280) {
                     doc.addPage();
@@ -771,6 +871,10 @@ class StudyBotApp {
             this.removeLoadingMessage();
             
             alert('Error generating summary. Please try again.');
+
+            alert('Error generating summary. Please try again.');
+        } finally {
+            this.showLoading(false);
         }
     }
 }
