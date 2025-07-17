@@ -27,17 +27,17 @@
                     <span></span>
                 </button>
             </div>
-            
+
             <div class="sidebar-content">
                 <div class="nav-item active" data-section="home">
                     <i class="icon">🏠</i>
                     <span>Home</span>
                 </div>
-                
+
                 <div class="nav-category">
                     <h3>Subjects</h3>
                 </div>
-                
+
                 <div class="nav-item" data-subject="chinese">
                     <i class="icon">🇨🇳</i>
                     <span>Chinese</span>
@@ -49,7 +49,7 @@
                         <div class="nav-subitem" data-chatbot="chinese-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="english">
                     <i class="icon">🇬🇧</i>
                     <span>English</span>
@@ -61,7 +61,7 @@
                         <div class="nav-subitem" data-chatbot="english-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="math">
                     <i class="icon">🔢</i>
                     <span>Mathematics</span>
@@ -74,7 +74,7 @@
                         <div class="nav-subitem" data-chatbot="math-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="science">
                     <i class="icon">🧪</i>
                     <span>Science</span>
@@ -85,7 +85,7 @@
                         <div class="nav-subitem" data-chatbot="science-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="physics">
                     <i class="icon">⚛️</i>
                     <span>Physics</span>
@@ -97,7 +97,7 @@
                         <div class="nav-subitem" data-chatbot="physics-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="chemistry">
                     <i class="icon">🧬</i>
                     <span>Chemistry</span>
@@ -109,7 +109,7 @@
                         <div class="nav-subitem" data-chatbot="chemistry-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="biology">
                     <i class="icon">🧬</i>
                     <span>Biology</span>
@@ -121,7 +121,7 @@
                         <div class="nav-subitem" data-chatbot="biology-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="history">
                     <i class="icon">📚</i>
                     <span>History</span>
@@ -133,7 +133,7 @@
                         <div class="nav-subitem" data-chatbot="history-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="geography">
                     <i class="icon">🌍</i>
                     <span>Geography</span>
@@ -145,7 +145,7 @@
                         <div class="nav-subitem" data-chatbot="geography-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="ict">
                     <i class="icon">💻</i>
                     <span>ICT</span>
@@ -157,7 +157,7 @@
                         <div class="nav-subitem" data-chatbot="ict-2024">2024 Past Papers</div>
                     </div>
                 </div>
-                
+
                 <div class="nav-item" data-subject="steam">
                     <i class="icon">🚀</i>
                     <span>STEAM</span>
@@ -180,11 +180,11 @@
                     <h1>Welcome to StudyBot</h1>
                     <h2>Your AI-Powered Revision Assistant</h2>
                     <p class="hero-description">
-                        StudyBot is designed to help students excel in their exams through personalized AI tutoring. 
+                        StudyBot is designed to help students excel in their exams through personalized AI tutoring.
                         Choose from our specialized chatbots across multiple subjects and get instant help with your studies.
                     </p>
                 </div>
-                
+
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">🎯</div>
@@ -207,7 +207,7 @@
                         <p>Export your chat history and get AI-generated study guides and revision notes.</p>
                     </div>
                 </div>
-                
+
                 <div class="getting-started">
                     <h3>Getting Started</h3>
                     <div class="steps">
@@ -233,18 +233,9 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>StudyBot - AI Revision Assistant</h1>
-            <p>Choose your subject and start chatting with AI tutors for exam revision</p>
-        </header>
-
-        <main>
             <!-- Subject Selection -->
             <section id="subject-selection" class="section active">
                 <h2>Select Your Subject</h2>
@@ -310,31 +301,26 @@
             <!-- Chat Interface -->
             <section id="chat-interface" class="section">
                 <div class="chat-header">
-                    <h3 id="current-chatbot-title">Select a Chatbot</h3>
-
                     <button id="back-to-chatbots" class="back-btn">← Back to Chatbots</button>
-                    <h3 id="current-chatbot-title">Chatbot</h3>
+                    <h3 id="chat-title">Chatbot</h3>
                     <div class="chat-actions">
                         <button id="export-chat" class="export-btn">Export Chat History</button>
-                        <button id="export-summary" class="export-btn">Export Summary & Guide</button>
+                        <button id="export-summary" class="export-btn">Export Summary &amp; Guide</button>
                     </div>
                 </div>
-                
+
                 <div class="chat-container">
                     <div id="chat-messages" class="chat-messages">
                         <div class="welcome-message">
                             <h4>Welcome to StudyBot!</h4>
                             <p>Select a subject and chatbot from the sidebar to start your revision session.</p>
                         </div>
-                        <!-- Messages will be populated dynamically -->
                     </div>
-                    
+
                     <div class="chat-input-container">
                         <div class="input-wrapper">
                             <textarea id="chat-input" placeholder="Type your question here..." rows="2" disabled></textarea>
                             <button id="send-btn" disabled>Send</button>
-                            <textarea id="chat-input" placeholder="Type your question here..." rows="2"></textarea>
-                            <button id="send-btn">Send</button>
                         </div>
                     </div>
                 </div>

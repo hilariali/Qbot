@@ -197,18 +197,14 @@ class StudyBotApp {
     toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
-        
-        console.log('Toggle sidebar called'); // Debug log
-        
+
         if (!sidebar || !overlay) {
             console.error('Sidebar or overlay element not found');
             return;
         }
-        
+
         this.sidebarActive = !this.sidebarActive;
-        
-        console.log('Sidebar active:', this.sidebarActive); // Debug log
-        
+
         if (this.sidebarActive) {
             sidebar.classList.add('active');
             overlay.classList.add('active');
@@ -217,25 +213,19 @@ class StudyBotApp {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
-        } else {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
         }
     }
 
     closeSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
-        
+
         if (sidebar && overlay) {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
-            document.body.style.overflow = ''; // Restore scrolling
         }
-        
+
         this.sidebarActive = false;
     }
 
