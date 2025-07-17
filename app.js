@@ -18,8 +18,8 @@ class StudyBotApp {
         this.setupMarkdownRenderer();
         await this.loadConfig();
         this.initializeChatbots();
-        await this.loadChatbotPrompts();
         this.setupEventListeners();
+        await this.loadChatbotPrompts();
         this.setupSidebar();
         console.log('App initialized successfully');
     }

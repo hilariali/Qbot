@@ -1009,8 +1009,17 @@ header p {
 
 /* Mobile Responsiveness */
 .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
     display: none;
-
+    opacity: 0;
+    z-index: 998;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 /* Loading Animation */
@@ -1029,6 +1038,7 @@ header p {
 .mobile-overlay.active {
     display: block;
     opacity: 1;
+    pointer-events: auto;
 }
 
 /* Scrollbar Styling */
@@ -1051,14 +1061,6 @@ header p {
 .chat-messages::-webkit-scrollbar-thumb:hover,
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: #555;
-
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    color: white;
 }
 
 .loading.hidden {
