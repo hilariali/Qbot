@@ -491,7 +491,7 @@ class StudyBotApp {
         const welcomeMessage = `Welcome! I'm your ${chatbot.name}. I'm here to help you with ${chatbot.subject} topics and exam preparation. What would you like to learn about today?`;
         this.addMessage('assistant', welcomeMessage);
         
-        this.showSection('chat');
+        this.showSection('chat-interface');
     }
 
     showSection(sectionId) {

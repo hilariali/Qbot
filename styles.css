@@ -107,6 +107,10 @@ body {
 }
 
 .nav-item {
+    margin-right: 10px;
+}
+
+.nav-link {
     padding: 12px 20px;
     cursor: pointer;
     transition: background 0.3s ease;
@@ -114,20 +118,19 @@ body {
     align-items: center;
     gap: 12px;
     border-radius: 0 20px 20px 0;
-    margin-right: 10px;
 }
 
-.nav-item:hover {
+.nav-link:hover {
     background: rgba(102, 126, 234, 0.1);
 }
 
-.nav-item.active {
+.nav-item.active .nav-link {
     background: rgba(102, 126, 234, 0.2);
     color: #667eea;
     font-weight: 600;
 }
 
-.nav-item .icon {
+.nav-link .icon {
     font-size: 1.2rem;
     min-width: 20px;
 }
