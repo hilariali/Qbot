@@ -69,6 +69,10 @@ body {
 
 .sidebar-toggle {
     display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1100;
     background: none;
     border: none;
     cursor: pointer;
@@ -93,6 +97,18 @@ body {
     transition: all 0.3s ease;
 }
 
+.sidebar-toggle.active span:nth-child(1) {
+    transform: translateY(5px) rotate(45deg);
+}
+
+.sidebar-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.sidebar-toggle.active span:nth-child(3) {
+    transform: translateY(-5px) rotate(-45deg);
+}
+
 .sidebar-content {
     padding: 20px 0;
 }
@@ -107,6 +123,10 @@ body {
 }
 
 .nav-item {
+    margin-right: 10px;
+}
+
+.nav-link {
     padding: 12px 20px;
     cursor: pointer;
     transition: background 0.3s ease;
@@ -114,20 +134,19 @@ body {
     align-items: center;
     gap: 12px;
     border-radius: 0 20px 20px 0;
-    margin-right: 10px;
 }
 
-.nav-item:hover {
+.nav-link:hover {
     background: rgba(102, 126, 234, 0.1);
 }
 
-.nav-item.active {
+.nav-item.active .nav-link {
     background: rgba(102, 126, 234, 0.2);
     color: #667eea;
     font-weight: 600;
 }
 
-.nav-item .icon {
+.nav-link .icon {
     font-size: 1.2rem;
     min-width: 20px;
 }
@@ -1006,8 +1025,17 @@ header p {
 
 /* Mobile Responsiveness */
 .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
     display: none;
-
+    opacity: 0;
+    z-index: 998;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 /* Loading Animation */
@@ -1026,6 +1054,7 @@ header p {
 .mobile-overlay.active {
     display: block;
     opacity: 1;
+    pointer-events: auto;
 }
 
 /* Scrollbar Styling */
@@ -1048,14 +1077,6 @@ header p {
 .chat-messages::-webkit-scrollbar-thumb:hover,
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: #555;
-
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    color: white;
 }
 
 .loading.hidden {
@@ -1093,18 +1114,12 @@ header p {
     }
     
     .sidebar-toggle {
-        display: flex !important;
         display: flex;
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 1002;
         background: rgba(102, 126, 234, 0.9);
         border-radius: 8px;
         padding: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         cursor: pointer;
-
     }
     
     .sidebar-toggle span {

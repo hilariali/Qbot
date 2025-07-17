@@ -18,8 +18,8 @@ class StudyBotApp {
         this.setupMarkdownRenderer();
         await this.loadConfig();
         this.initializeChatbots();
-        await this.loadChatbotPrompts();
         this.setupEventListeners();
+        await this.loadChatbotPrompts();
         this.setupSidebar();
         console.log('App initialized successfully');
     }
@@ -197,45 +197,40 @@ class StudyBotApp {
     toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
-        
-        console.log('Toggle sidebar called'); // Debug log
-        
+        const toggle = document.getElementById('sidebar-toggle');
+
         if (!sidebar || !overlay) {
             console.error('Sidebar or overlay element not found');
             return;
         }
-        
+
         this.sidebarActive = !this.sidebarActive;
-        
-        console.log('Sidebar active:', this.sidebarActive); // Debug log
-        
+
         if (this.sidebarActive) {
             sidebar.classList.add('active');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            if (toggle) toggle.classList.add('active');
         } else {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
-        } else {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
+            if (toggle) toggle.classList.remove('active');
         }
     }
 
     closeSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
-        
+        const toggle = document.getElementById('sidebar-toggle');
+
         if (sidebar && overlay) {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
-            document.body.style.overflow = ''; // Restore scrolling
         }
-        
+        if (toggle) toggle.classList.remove('active');
+
         this.sidebarActive = false;
     }
 
@@ -501,7 +496,7 @@ class StudyBotApp {
         const welcomeMessage = `Welcome! I'm your ${chatbot.name}. I'm here to help you with ${chatbot.subject} topics and exam preparation. What would you like to learn about today?`;
         this.addMessage('assistant', welcomeMessage);
         
-        this.showSection('chat');
+        this.showSection('chat-interface');
     }
 
     showSection(sectionId) {
