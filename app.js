@@ -79,23 +79,17 @@ class StudyBotApp {
                     if (!line.trim() || line.trim().startsWith('#')) return;
                     const idx = line.indexOf(':');
                     if (idx === -1) return;
-                    const k = line.slice(0, idx).trim();
-                    const v = line.slice(idx + 1).trim();
-                    if (!k || !v) return;
-
-
-                    const [key, value] = line.split(':');
+                    const key = line.slice(0, idx).trim();
+                    const value = line.slice(idx + 1).trim();
                     if (!key || !value) return;
-                    const k = key.trim();
-                    const v = value.trim();
 
 
-                    if (k === 'key') {
-                        this.config.apiKey = v;
-                    } else if (k === 'model') {
-                        this.config.model = v;
-                    } else if (k === 'baseURL') {
-                        this.config.baseURL = v;
+                    if (key === 'key') {
+                        this.config.apiKey = value;
+                    } else if (key === 'model') {
+                        this.config.model = value;
+                    } else if (key === 'baseURL') {
+                        this.config.baseURL = value;
                     }
                 });
                 console.log('Configuration loaded from file');
