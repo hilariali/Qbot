@@ -197,6 +197,8 @@ class StudyBotApp {
     toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
+        const toggle = document.getElementById('sidebar-toggle');
+
 
         if (!sidebar || !overlay) {
             console.error('Sidebar or overlay element not found');
@@ -209,22 +211,29 @@ class StudyBotApp {
             sidebar.classList.add('active');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            if (toggle) toggle.classList.add('active');
         } else {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+            if (toggle) toggle.classList.remove('active');
+
         }
     }
 
     closeSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('mobile-overlay');
+        const toggle = document.getElementById('sidebar-toggle');
+
 
         if (sidebar && overlay) {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
         }
+        if (toggle) toggle.classList.remove('active');
+
 
         this.sidebarActive = false;
     }
