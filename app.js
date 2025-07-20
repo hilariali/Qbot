@@ -30,10 +30,13 @@ class StudyBotApp {
         this.marked = marked;
         this.marked.setOptions({
             highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
+                if (typeof hljs !== 'undefined') {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    }
+                    return hljs.highlightAuto(code).value;
                 }
-                return hljs.highlightAuto(code).value;
+                return code;
             },
             breaks: true,
             gfm: true,
@@ -80,10 +83,12 @@ class StudyBotApp {
                     const v = line.slice(idx + 1).trim();
                     if (!k || !v) return;
 
+
                     const [key, value] = line.split(':');
                     if (!key || !value) return;
                     const k = key.trim();
                     const v = value.trim();
+
 
                     if (k === 'key') {
                         this.config.apiKey = v;
@@ -547,14 +552,14 @@ class StudyBotApp {
 
     renderMarkdown(content) {
         if (!this.marked) {
-            return content.replace(/\n/g, '<br>');
+            return typeof content === 'string' ? content.replace(/\n/g, '<br>') : '';
         }
-        
+
         try {
-            return this.marked.parse(content);
+            return this.marked.parse(typeof content === 'string' ? content : String(content));
         } catch (error) {
             console.error('Markdown rendering error:', error);
-            return content.replace(/\n/g, '<br>');
+            return typeof content === 'string' ? content.replace(/\n/g, '<br>') : String(content);
         }
     }
 

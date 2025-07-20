@@ -147,6 +147,7 @@ Modify `styles.css` to change the appearance and layout of the application.
 
 - Axios (for API requests)
 - jsPDF (for PDF generation)
+- highlight.js (optional code highlighting)
 - Modern browser with fetch API support
 
 ## Troubleshooting
