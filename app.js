@@ -45,10 +45,13 @@ class StudyBotApp {
         const renderer = new this.marked.Renderer();
         
         renderer.text = function(text) {
+            if (typeof text !== 'string') {
+                return text;
+            }
+            // Handle display math $$...$$ first
+            text = text.replace(/\$\$([^$]+)\$\$/g, '<div class="math-display">\\[$1\\]</div>');
             // Handle inline math $...$
             text = text.replace(/\$([^$]+)\$/g, '<span class="math-inline">\\($1\\)</span>');
-            // Handle display math $$...$$
-            text = text.replace(/\$\$([^$]+)\$\$/g, '<div class="math-display">\\[$1\\]</div>');
             return text;
         };
 
@@ -69,10 +72,19 @@ class StudyBotApp {
             if (response.ok) {
                 const text = await response.text();
                 text.split(/\n+/).forEach(line => {
+
+                    if (!line.trim() || line.trim().startsWith('#')) return;
+                    const idx = line.indexOf(':');
+                    if (idx === -1) return;
+                    const k = line.slice(0, idx).trim();
+                    const v = line.slice(idx + 1).trim();
+                    if (!k || !v) return;
+
                     const [key, value] = line.split(':');
                     if (!key || !value) return;
                     const k = key.trim();
                     const v = value.trim();
+
                     if (k === 'key') {
                         this.config.apiKey = v;
                     } else if (k === 'model') {
