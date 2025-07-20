@@ -1654,3 +1654,45 @@ header p {
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* Modern chat styling enhancements */
+.chat-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.message {
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.message.user {
+    background: linear-gradient(135deg, #6a89ff 0%, #6b6bff 100%);
+    color: #fff;
+}
+
+.message.assistant {
+    background: #f1f3f4;
+    color: #333;
+}
+
+.chat-input-container {
+    position: sticky;
+    bottom: 0;
+    background: #ffffff;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+}
+
+#send-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.send-icon {
+    font-size: 1rem;
+}
