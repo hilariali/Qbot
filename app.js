@@ -30,10 +30,13 @@ class StudyBotApp {
         this.marked = marked;
         this.marked.setOptions({
             highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
+                if (typeof hljs !== 'undefined') {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    }
+                    return hljs.highlightAuto(code).value;
                 }
-                return hljs.highlightAuto(code).value;
+                return code;
             },
             breaks: true,
             gfm: true,
@@ -45,10 +48,13 @@ class StudyBotApp {
         const renderer = new this.marked.Renderer();
         
         renderer.text = function(text) {
+            if (typeof text !== 'string') {
+                return text;
+            }
+            // Handle display math $$...$$ first
+            text = text.replace(/\$\$([^$]+)\$\$/g, '<div class="math-display">\\[$1\\]</div>');
             // Handle inline math $...$
             text = text.replace(/\$([^$]+)\$/g, '<span class="math-inline">\\($1\\)</span>');
-            // Handle display math $$...$$
-            text = text.replace(/\$\$([^$]+)\$\$/g, '<div class="math-display">\\[$1\\]</div>');
             return text;
         };
 
@@ -65,8 +71,28 @@ class StudyBotApp {
     async loadConfig() {
         console.log('Loading configuration...');
         try {
-            // Config is already set in constructor
-            console.log('Using default configuration');
+            const response = await fetch('config.txt');
+            if (response.ok) {
+                const text = await response.text();
+                text.split(/\n+/).forEach(line => {
+                    if (!line.trim() || line.trim().startsWith('#')) return;
+                    const idx = line.indexOf(':');
+                    if (idx === -1) return;
+                    const k = line.slice(0, idx).trim();
+                    const v = line.slice(idx + 1).trim();
+                    if (!k || !v) return;
+                    if (k === 'key') {
+                        this.config.apiKey = v;
+                    } else if (k === 'model') {
+                        this.config.model = v;
+                    } else if (k === 'baseURL') {
+                        this.config.baseURL = v;
+                    }
+                });
+                console.log('Configuration loaded from file');
+            } else {
+                console.log('Config file not found - using defaults');
+            }
         } catch (error) {
             console.error('Error loading config:', error);
         }
@@ -517,14 +543,14 @@ class StudyBotApp {
 
     renderMarkdown(content) {
         if (!this.marked) {
-            return content.replace(/\n/g, '<br>');
+            return typeof content === 'string' ? content.replace(/\n/g, '<br>') : '';
         }
-        
+
         try {
-            return this.marked.parse(content);
+            return this.marked.parse(typeof content === 'string' ? content : String(content));
         } catch (error) {
             console.error('Markdown rendering error:', error);
-            return content.replace(/\n/g, '<br>');
+            return typeof content === 'string' ? content.replace(/\n/g, '<br>') : String(content);
         }
     }
 
