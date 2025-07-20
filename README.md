@@ -25,7 +25,9 @@ A comprehensive web application that helps students chat with specialized AI tut
    ```
    key:your-api-key-here
    model:your-model-name-here
+   baseURL:https://api.example.com/v1
    ```
+   StudyBot reads this file on startup, so ensure it is served from the same directory as `index.html`.
 
 3. **Serve Files**: Use a local web server to serve the files:
    ```bash

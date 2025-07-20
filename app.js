@@ -65,8 +65,26 @@ class StudyBotApp {
     async loadConfig() {
         console.log('Loading configuration...');
         try {
-            // Config is already set in constructor
-            console.log('Using default configuration');
+            const response = await fetch('config.txt');
+            if (response.ok) {
+                const text = await response.text();
+                text.split(/\n+/).forEach(line => {
+                    const [key, value] = line.split(':');
+                    if (!key || !value) return;
+                    const k = key.trim();
+                    const v = value.trim();
+                    if (k === 'key') {
+                        this.config.apiKey = v;
+                    } else if (k === 'model') {
+                        this.config.model = v;
+                    } else if (k === 'baseURL') {
+                        this.config.baseURL = v;
+                    }
+                });
+                console.log('Configuration loaded from file');
+            } else {
+                console.log('Config file not found - using defaults');
+            }
         } catch (error) {
             console.error('Error loading config:', error);
         }
