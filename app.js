@@ -8,7 +8,7 @@ class StudyBotApp {
         this.chatbotPrompts = {};
         this.config = {
             apiKey: 'sk-UVKYLhiNf0MKXRqbnDiehA',
-            baseURL: 'https://api.akash.network/v1',
+            baseURL: 'https://chatapi.akash.network/api/v1',
             model: 'Meta-Llama-4-Maverick-17B-128E-Instruct-FP8'
         };
     }
@@ -696,25 +696,20 @@ class StudyBotApp {
                 { role: 'user', content: message }
             ];
             
-            const response = await fetch(`${this.config.baseURL}/chat/completions`, {
-                method: 'POST',
+            const client = axios.create({
+                baseURL: this.config.baseURL,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.config.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: this.config.model,
-                    messages: messages,
-                    temperature: 0.7,
-                    max_tokens: 2000
-                })
+                }
             });
-            
-            if (!response.ok) {
-                throw new Error(`API request failed: ${response.status}`);
-            }
-            
-            const data = await response.json();
+
+            const { data } = await client.post('/chat/completions', {
+                model: this.config.model,
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 2000
+            });
             const aiResponse = data.choices[0].message.content;
             
             // Remove loading indicator
@@ -793,25 +788,20 @@ class StudyBotApp {
 Our conversation:
 ${this.currentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')}`;
 
-            const response = await fetch(`${this.config.baseURL}/chat/completions`, {
-                method: 'POST',
+            const client = axios.create({
+                baseURL: this.config.baseURL,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.config.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: this.config.model,
-                    messages: [{ role: 'user', content: summaryPrompt }],
-                    temperature: 0.3,
-                    max_tokens: 1500
-                })
+                }
             });
 
-            if (!response.ok) {
-                throw new Error(`API request failed: ${response.status}`);
-            }
-
-            const data = await response.json();
+            const { data } = await client.post('/chat/completions', {
+                model: this.config.model,
+                messages: [{ role: 'user', content: summaryPrompt }],
+                temperature: 0.3,
+                max_tokens: 1500
+            });
             const summary = data.choices[0].message.content;
 
             // Create PDF with summary
