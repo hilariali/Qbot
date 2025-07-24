@@ -580,9 +580,11 @@ class StudyBotApp {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${role}`;
 
-        // Ensure content is a string to avoid [object Object] output
+       // Ensure content is a string to avoid [object Object] output
         let safeContent = content;
-        if (typeof safeContent !== 'string') {
+        if (safeContent === null || safeContent === undefined) {
+            safeContent = String(safeContent);
+        } else if (typeof safeContent !== 'string') {
             try {
                 safeContent = JSON.stringify(safeContent, null, 2);
             } catch (e) {
@@ -720,7 +722,14 @@ class StudyBotApp {
                 temperature: 0.7,
                 max_tokens: 2000
             });
-            const aiResponse = data.choices[0].message.content;
+            let aiResponse = data.choices?.[0]?.message?.content;
+            if (typeof aiResponse !== 'string') {
+                try {
+                    aiResponse = JSON.stringify(data.choices?.[0]?.message);
+                } catch (e) {
+                    aiResponse = String(data.choices?.[0]?.message);
+                }
+            }
             
             // Remove loading indicator
             this.removeLoadingMessage();
@@ -812,7 +821,14 @@ ${this.currentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')}`;
                 temperature: 0.3,
                 max_tokens: 1500
             });
-            const summary = data.choices[0].message.content;
+            let summary = data.choices?.[0]?.message?.content;
+            if (typeof summary !== 'string') {
+                try {
+                    summary = JSON.stringify(data.choices?.[0]?.message);
+                } catch (e) {
+                    summary = String(data.choices?.[0]?.message);
+                }
+            }
 
             // Create PDF with summary
             const { jsPDF } = window.jspdf;
