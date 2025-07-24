@@ -720,7 +720,23 @@ class StudyBotApp {
                 temperature: 0.7,
                 max_tokens: 2000
             });
-            const aiResponse = data.choices[0].message.content;
+
+            // Handle unexpected API responses gracefully
+            let aiResponse;
+            try {
+                aiResponse = data.choices[0].message.content;
+            } catch (parseError) {
+                console.warn('Unexpected response format:', data);
+                if (typeof data === 'string') {
+                    aiResponse = data;
+                } else {
+                    try {
+                        aiResponse = JSON.stringify(data, null, 2);
+                    } catch (stringifyError) {
+                        aiResponse = String(data);
+                    }
+                }
+            }
             
             // Remove loading indicator
             this.removeLoadingMessage();
