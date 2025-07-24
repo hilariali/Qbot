@@ -579,10 +579,20 @@ class StudyBotApp {
         const messagesContainer = document.getElementById('chat-messages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${role}`;
+
+        // Ensure content is a string to avoid [object Object] output
+        let safeContent = content;
+        if (typeof safeContent !== 'string') {
+            try {
+                safeContent = JSON.stringify(safeContent, null, 2);
+            } catch (e) {
+                safeContent = String(safeContent);
+            }
+        }
         
         // Handle thinking process
-        if (role === 'assistant' && content.includes('<thinking>')) {
-            const { mainContent, thinkingContent } = this.parseThinkingContent(content);
+        if (role === 'assistant' && safeContent.includes('<thinking>')) {
+            const { mainContent, thinkingContent } = this.parseThinkingContent(safeContent);
             
             // Render main content with markdown
             const renderedContent = this.renderMarkdown(mainContent);
@@ -613,11 +623,11 @@ class StudyBotApp {
         } else {
             // Render content with markdown for both user and assistant messages
             if (role === 'assistant') {
-                const renderedContent = this.renderMarkdown(content);
+                const renderedContent = this.renderMarkdown(safeContent);
                 messageDiv.innerHTML = renderedContent;
             } else {
                 // For user messages, just escape HTML to prevent XSS
-                messageDiv.textContent = content;
+                messageDiv.textContent = safeContent;
             }
         }
         
@@ -630,7 +640,7 @@ class StudyBotApp {
         }
         
         // Store message
-        this.currentMessages.push({ role, content });
+        this.currentMessages.push({ role, content: safeContent });
     }
 
     addLoadingMessage() {
