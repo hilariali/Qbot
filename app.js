@@ -134,7 +134,7 @@ class StudyBotApp {
                 console.log('Nav item clicked:', { section, subject }); // Debug log
                 
                 if (section === 'home') {
-                    this.showSection('home');
+                    this.showHomeSection();
                     this.setActiveNavItem(item);
                     // Close sidebar on mobile after selection
                     if (window.innerWidth <= 768) {
@@ -193,6 +193,12 @@ class StudyBotApp {
 
         const chatInput = document.getElementById('chat-input');
         if (chatInput) {
+            // Auto-resize functionality
+            chatInput.addEventListener('input', () => {
+                this.autoResizeTextarea(chatInput);
+            });
+            
+            // Enter key handling
             chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -215,6 +221,20 @@ class StudyBotApp {
                 this.exportSummaryAndGuide();
             });
         }
+    }
+
+    autoResizeTextarea(textarea) {
+        // Reset height to auto to calculate the new height
+        textarea.style.height = 'auto';
+        
+        // Calculate the new height based on scroll height
+        const newHeight = Math.min(textarea.scrollHeight, 120); // Max height of 120px
+        
+        // Set the new height
+        textarea.style.height = newHeight + 'px';
+        
+        // Smooth animation
+        textarea.style.transition = 'height 0.1s ease';
     }
 
     setupSidebar() {
@@ -544,17 +564,88 @@ class StudyBotApp {
         }
     }
 
-    renderMarkdown(content) {
-        if (!this.marked) {
-            return typeof content === 'string' ? content.replace(/\n/g, '<br>') : '';
+    showHomeSection() {
+        console.log('Showing home section with subject selection');
+        // Hide all sections first
+        document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        // Show both home and subject-selection sections for the complete home view
+        const homeSection = document.getElementById('home');
+        const subjectSelectionSection = document.getElementById('subject-selection');
+        
+        if (homeSection) {
+            homeSection.classList.add('active');
         }
+        if (subjectSelectionSection) {
+            subjectSelectionSection.classList.add('active');
+        }
+    }
 
-        try {
-            return this.marked.parse(typeof content === 'string' ? content : String(content));
-        } catch (error) {
-            console.error('Markdown rendering error:', error);
-            return typeof content === 'string' ? content.replace(/\n/g, '<br>') : String(content);
+    renderMarkdown(content) {
+        console.log('🎨 renderMarkdown called with:', content, 'type:', typeof content);
+        
+        const stringContent = typeof content === 'string' ? content : String(content);
+        console.log('🎨 String content for rendering:', stringContent);
+        
+        // Enhanced markdown processing with math support
+        let result = stringContent
+            // Handle math expressions first (before other replacements)
+            .replace(/\$\$([\s\S]*?)\$\$/g, '<span class="math-block">$1</span>')  // Block math
+            .replace(/\$([^$\n]+?)\$/g, '<span class="math-inline">$1</span>')    // Inline math
+            .replace(/\^(\d+)/g, '<sup>$1</sup>')                                 // Superscript numbers
+            .replace(/\^{([^}]+)}/g, '<sup>$1</sup>')                             // Superscript with braces
+            .replace(/_(\d+)/g, '<sub>$1</sub>')                                  // Subscript numbers
+            .replace(/_{([^}]+)}/g, '<sub>$1</sub>')                              // Subscript with braces
+            // Standard markdown
+            .replace(/\n\n/g, '</p><p>')                                          // Paragraphs
+            .replace(/\n/g, '<br>')                                               // Line breaks
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')                     // Bold
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')                                 // Italic
+            .replace(/`(.*?)`/g, '<code>$1</code>')                               // Inline code
+            .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')           // Code blocks
+            // Lists
+            .replace(/^\* (.+)$/gm, '<li>$1</li>')                                // Bullet points
+            .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>');                      // Numbered lists
+        
+        // Wrap standalone list items in ul tags
+        result = result.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+        
+        // Wrap in paragraph if it doesn't start with a tag
+        if (!result.startsWith('<')) {
+            result = '<p>' + result + '</p>';
         }
+        
+        console.log('🎨 Enhanced rendering result:', result);
+        
+        // Apply KaTeX rendering if available
+        setTimeout(() => {
+            if (typeof renderMathInElement !== 'undefined') {
+                console.log('🎨 Applying KaTeX rendering...');
+                try {
+                    const mathElements = document.querySelectorAll('.math-inline, .math-block');
+                    mathElements.forEach(element => {
+                        const mathText = element.textContent;
+                        const isBlock = element.classList.contains('math-block');
+                        try {
+                            if (typeof katex !== 'undefined') {
+                                element.innerHTML = katex.renderToString(mathText, {
+                                    displayMode: isBlock,
+                                    throwOnError: false
+                                });
+                            }
+                        } catch (e) {
+                            console.warn('KaTeX rendering failed for:', mathText, e);
+                        }
+                    });
+                } catch (e) {
+                    console.warn('KaTeX rendering error:', e);
+                }
+            }
+        }, 100);
+        
+        return result;
     }
 
     renderMathInElement(element) {
@@ -576,19 +667,76 @@ class StudyBotApp {
     }
 
     addMessage(role, content) {
+        console.log('🔍 addMessage called with:', { role, content, contentType: typeof content });
+        console.log('🔍 Raw content value:', content);
+        console.log('🔍 Content stringified:', String(content));
+        
         const messagesContainer = document.getElementById('chat-messages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${role}`;
 
-        // Ensure content is a string to avoid [object Object] output
+        // AGGRESSIVE content string conversion
         let safeContent = content;
+        
+        // More detailed debugging
+        console.log('🔍 Before conversion - safeContent:', safeContent, 'type:', typeof safeContent);
+        
+        // Force conversion to string - try multiple methods
         if (typeof safeContent !== 'string') {
-            try {
-                safeContent = JSON.stringify(safeContent, null, 2);
-            } catch (e) {
+            console.warn('⚠️ Content is not a string, converting:', typeof safeContent, safeContent);
+            
+            if (safeContent === null || safeContent === undefined) {
+                safeContent = '[No content received]';
+                console.log('🔧 Handled null/undefined');
+            } else if (typeof safeContent === 'object') {
+                console.log('🔧 Content is object, attempting extraction...');
+                
+                // Try multiple object properties
+                if (safeContent.text && typeof safeContent.text === 'string') {
+                    safeContent = safeContent.text;
+                    console.log('🔧 Extracted from .text:', safeContent);
+                } else if (safeContent.content && typeof safeContent.content === 'string') {
+                    safeContent = safeContent.content;
+                    console.log('🔧 Extracted from .content:', safeContent);
+                } else if (safeContent.message && typeof safeContent.message === 'string') {
+                    safeContent = safeContent.message;
+                    console.log('🔧 Extracted from .message:', safeContent);
+                } else if (safeContent.data && typeof safeContent.data === 'string') {
+                    safeContent = safeContent.data;
+                    console.log('🔧 Extracted from .data:', safeContent);
+                } else {
+                    // Last resort - JSON stringify
+                    try {
+                        safeContent = JSON.stringify(safeContent, null, 2);
+                        console.log('🔧 JSON stringified:', safeContent);
+                    } catch (e) {
+                        safeContent = '[Could not convert object to string]';
+                        console.log('🔧 JSON stringify failed, using fallback');
+                    }
+                }
+            } else {
                 safeContent = String(safeContent);
+                console.log('🔧 String() conversion:', safeContent);
             }
         }
+        
+        // Final safety check and forced conversion
+        if (typeof safeContent !== 'string') {
+            console.error('❌ Still not a string after conversion, forcing...');
+            safeContent = String(safeContent || '[Empty content]');
+        }
+        
+        // Check for [object Object] specifically
+        if (safeContent === '[object Object]') {
+            console.error('❌ Got [object Object] - replacing with error message');
+            safeContent = '[Error: Content could not be processed properly]';
+        }
+        
+        console.log('✅ Final safe content:', safeContent);
+
+        // Create WhatsApp-style message bubble
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'message-bubble';
         
         // Handle thinking process
         if (role === 'assistant' && safeContent.includes('<thinking>')) {
@@ -596,7 +744,7 @@ class StudyBotApp {
             
             // Render main content with markdown
             const renderedContent = this.renderMarkdown(mainContent);
-            messageDiv.innerHTML = renderedContent;
+            messageBubble.innerHTML = renderedContent;
             
             if (thinkingContent) {
                 const thinkingDiv = document.createElement('div');
@@ -618,47 +766,60 @@ class StudyBotApp {
                     toggleIcon.classList.toggle('expanded');
                 });
                 
-                messageDiv.appendChild(thinkingDiv);
+                messageBubble.appendChild(thinkingDiv);
             }
         } else {
             // Render content with markdown for both user and assistant messages
             if (role === 'assistant') {
                 const renderedContent = this.renderMarkdown(safeContent);
-                messageDiv.innerHTML = renderedContent;
+                console.log('🖼️ About to set innerHTML with rendered content:', renderedContent, 'type:', typeof renderedContent);
+                messageBubble.innerHTML = renderedContent;
+                console.log('🖼️ messageBubble.innerHTML after setting:', messageBubble.innerHTML);
             } else {
                 // For user messages, just escape HTML to prevent XSS
-                messageDiv.textContent = safeContent;
+                console.log('🖼️ Setting textContent for user message:', safeContent);
+                messageBubble.textContent = safeContent;
+                console.log('🖼️ messageBubble.textContent after setting:', messageBubble.textContent);
             }
         }
         
+        messageDiv.appendChild(messageBubble);
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         
         // Render any math expressions in the new message
         if (role === 'assistant') {
-            this.renderMathInElement(messageDiv);
+            this.renderMathInElement(messageBubble);
         }
         
         // Store message
         this.currentMessages.push({ role, content: safeContent });
     }
-
+    
     addLoadingMessage() {
         const messagesContainer = document.getElementById('chat-messages');
         const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'chat-loading';
-        loadingDiv.id = 'chat-loading-message';
-        loadingDiv.innerHTML = `
-            <div class="chat-spinner"></div>
-            <span>AI is thinking...</span>
+        loadingDiv.className = 'message assistant loading';
+        loadingDiv.id = 'loading-message';
+        
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'message-bubble';
+        messageBubble.innerHTML = `
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+            <span class="loading-text">Thinking...</span>
         `;
         
+        loadingDiv.appendChild(messageBubble);
         messagesContainer.appendChild(loadingDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     removeLoadingMessage() {
-        const loadingMessage = document.getElementById('chat-loading-message');
+        const loadingMessage = document.getElementById('loading-message');
         if (loadingMessage) {
             loadingMessage.remove();
         }
@@ -689,6 +850,9 @@ class StudyBotApp {
         this.addMessage('user', message);
         chatInput.value = '';
         
+        // Reset textarea height
+        this.autoResizeTextarea(chatInput);
+        
         // Add loading indicator
         this.addLoadingMessage();
         
@@ -706,21 +870,96 @@ class StudyBotApp {
                 { role: 'user', content: message }
             ];
             
+            console.log('Sending request with messages:', messages);
+            console.log('Using config:', {
+                baseURL: this.config.baseURL,
+                model: this.config.model,
+                apiKey: this.config.apiKey ? 'sk-***' + this.config.apiKey.slice(-4) : 'not set'
+            });
+            
             const client = axios.create({
                 baseURL: this.config.baseURL,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.config.apiKey}`
-                }
+                },
+                timeout: 30000  // 30 second timeout
             });
 
-            const { data } = await client.post('/chat/completions', {
+            const response = await client.post('/chat/completions', {
                 model: this.config.model,
                 messages: messages,
                 temperature: 0.7,
                 max_tokens: 2000
             });
-            const aiResponse = data.choices[0].message.content;
+            
+            const data = response.data;
+            
+            // Enhanced debug logging
+            console.log('🚀 Full API Response object:', response);
+            console.log('🚀 Response status:', response.status);
+            console.log('🚀 Response headers:', response.headers);
+            console.log('🚀 Response data:', data);
+            console.log('🚀 Data type:', typeof data);
+            console.log('🚀 Data keys:', data ? Object.keys(data) : 'no data');
+            console.log('🚀 Response structure (full JSON):', JSON.stringify(data, null, 2));
+            
+            // Check if response has expected structure
+            if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
+                console.error('❌ Unexpected API response structure:', data);
+                console.error('❌ Data exists:', !!data);
+                console.error('❌ Choices exists:', !!(data && data.choices));
+                console.error('❌ First choice exists:', !!(data && data.choices && data.choices[0]));
+                console.error('❌ Message exists:', !!(data && data.choices && data.choices[0] && data.choices[0].message));
+                throw new Error('Invalid API response structure');
+            }
+            
+            console.log('🔍 Choices array:', data.choices);
+            console.log('🔍 First choice object:', data.choices[0]);
+            console.log('🔍 Message object:', data.choices[0].message);
+            console.log('🔍 Raw content from API:', data.choices[0].message.content);
+            console.log('🔍 Content type:', typeof data.choices[0].message.content);
+            
+            let aiResponse = data.choices[0].message.content;
+            
+            // Handle different content formats
+            console.log('🔍 Raw AI response content:', aiResponse, 'type:', typeof aiResponse);
+            
+            if (typeof aiResponse !== 'string') {
+                console.warn('⚠️ AI response content is not a string, attempting to extract...');
+                
+                // Try different extraction methods
+                if (aiResponse && typeof aiResponse === 'object') {
+                    // If it's an object, try common properties
+                    if (aiResponse.text) {
+                        aiResponse = aiResponse.text;
+                        console.log('🔧 Extracted from .text property:', aiResponse);
+                    } else if (aiResponse.content) {
+                        aiResponse = aiResponse.content;
+                        console.log('🔧 Extracted from .content property:', aiResponse);
+                    } else if (aiResponse.message) {
+                        aiResponse = aiResponse.message;
+                        console.log('🔧 Extracted from .message property:', aiResponse);
+                    } else if (typeof aiResponse.toString === 'function') {
+                        aiResponse = aiResponse.toString();
+                        console.log('🔧 Converted using toString():', aiResponse);
+                    } else {
+                        aiResponse = JSON.stringify(aiResponse);
+                        console.log('🔧 Converted to JSON string:', aiResponse);
+                    }
+                } else {
+                    aiResponse = String(aiResponse);
+                    console.log('🔧 Forced string conversion:', aiResponse);
+                }
+            }
+            
+            // Final validation
+            if (typeof aiResponse !== 'string' || aiResponse.trim() === '') {
+                console.error('❌ Could not extract valid string from AI response');
+                throw new Error('Invalid response content - could not convert to string');
+            }
+            
+            console.log('✅ Final AI Response content:', aiResponse);
             
             // Remove loading indicator
             this.removeLoadingMessage();
@@ -730,8 +969,21 @@ class StudyBotApp {
             
         } catch (error) {
             console.error('Error sending message:', error);
+            console.error('Error details:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+                statusText: error.response?.statusText
+            });
+            
             this.removeLoadingMessage();
-            this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+            
+            let errorMessage = 'Sorry, I encountered an error. Please try again.';
+            if (error.response) {
+                errorMessage += ` (Status: ${error.response.status})`;
+            }
+            
+            this.addMessage('assistant', errorMessage);
         } finally {
             // Re-enable input
             chatInput.disabled = false;
@@ -834,10 +1086,65 @@ ${this.currentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')}`;
             alert('Error generating summary. Please try again.');
         }
     }
+    
+    // Test function for debugging - call this in browser console
+    async testAPI() {
+        console.log('🧪 Testing API directly...');
+        try {
+            const response = await fetch('https://chatapi.akash.network/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.config.apiKey}`
+                },
+                body: JSON.stringify({
+                    model: this.config.model,
+                    messages: [{ role: 'user', content: 'Hello, test message' }],
+                    temperature: 0.7,
+                    max_tokens: 100
+                })
+            });
+            
+            const data = await response.json();
+            console.log('🧪 Direct API test result:', data);
+            console.log('🧪 Response content:', data.choices[0].message.content);
+            console.log('🧪 Content type:', typeof data.choices[0].message.content);
+            
+            // Test addMessage with this response
+            this.addMessage('assistant', data.choices[0].message.content);
+            
+        } catch (error) {
+            console.error('🧪 Direct API test error:', error);
+        }
+    }
+    
+    // Test function for addMessage - call this in browser console
+    testAddMessage() {
+        console.log('🧪 Testing addMessage with different content types...');
+        
+        // Test with string
+        this.addMessage('assistant', 'Test string message');
+        
+        // Test with object (this should trigger the conversion)
+        this.addMessage('assistant', { test: 'object message' });
+        
+        // Test with null
+        this.addMessage('assistant', null);
+        
+        // Test with undefined
+        this.addMessage('assistant', undefined);
+    }
 }
 
 // Initialize the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const app = new StudyBotApp();
     app.initializeApp();
+    
+    // Make app globally accessible for debugging
+    window.studyBot = app;
 });
+
+// Global test functions for debugging
+window.testAPI = () => window.studyBot?.testAPI();
+window.testAddMessage = () => window.studyBot?.testAddMessage();

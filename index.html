@@ -326,29 +326,53 @@
 
             <!-- Chat Interface -->
             <section id="chat-interface" class="section">
-                <div class="chat-header">
-                    <button id="back-to-chatbots" class="back-btn">← Back to Chatbots</button>
-                    <h3 id="chat-title">Chatbot</h3>
-                    <div class="chat-actions">
-                        <button id="export-chat" class="export-btn">Export Chat History</button>
-                        <button id="export-summary" class="export-btn">Export Summary &amp; Guide</button>
+                <!-- WhatsApp-style Chat Header -->
+                <div class="whatsapp-chat-header">
+                    <div class="chat-header-left">
+                        <button id="back-to-chatbots" class="back-btn">
+                            <span class="back-icon">←</span>
+                        </button>
+                        <div class="chat-contact-info">
+                            <div class="contact-avatar">
+                                <span class="chat-icon">🤖</span>
+                            </div>
+                            <div class="contact-details">
+                                <h3 id="chat-title" class="contact-name">StudyBot</h3>
+                                <p class="contact-status">AI Tutor • Online</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="chat-actions">
+                        <button id="export-chat" class="action-btn" title="Export Chat History">
+                            <span class="icon">📥</span>
+                            <span>Export Chat</span>
+                        </button>
+                        <button id="export-summary" class="action-btn" title="Generate Summary">
+                            <span class="icon">📋</span>
+                            <span>Summarize</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="chat-container">
-                    <div id="chat-messages" class="chat-messages">
+                <!-- WhatsApp-style Chat Container -->
+                <div class="whatsapp-chat-container">
+                    <!-- Messages Area -->
+                    <div id="chat-messages" class="whatsapp-messages">
                         <div class="welcome-message">
-                            <h4>Welcome to StudyBot!</h4>
-                            <p>Select a subject and chatbot from the sidebar to start your revision session.</p>
+                            <div class="welcome-bubble">
+                                <div class="welcome-icon">🎓</div>
+                                <h4>Welcome to StudyBot!</h4>
+                                <p>Select a subject and chatbot from the sidebar to start your personalized revision session.</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="chat-input-container">
-                        <div class="input-wrapper">
-                            <textarea id="chat-input" placeholder="Type your question here..." rows="2" disabled></textarea>
-                            <button id="send-btn" disabled>
-                                <span class="send-text">Send</span>
-                                <span class="send-icon">&#10148;</span>
+                    <!-- Fixed Input Bar at Bottom -->
+                    <div class="whatsapp-input-bar">
+                        <div class="input-container">
+                            <textarea id="chat-input" placeholder="Type a message..." rows="1" disabled></textarea>
+                            <button id="send-btn" class="send-button" disabled>
+                                <span class="send-icon">📤</span>
                             </button>
                         </div>
                     </div>
