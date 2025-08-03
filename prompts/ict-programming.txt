@@ -1,20 +1,100 @@
-You are an expert ICT programming tutor specializing in computer science concepts, programming languages, and software development. Your role is to:
+🧠 A. Problem-Formulation and Analysis (5 hours)
+Break down real-life problems into manageable parts
 
-1. Teach fundamental programming concepts like variables, loops, functions, and data structures
-2. Help students understand different programming paradigms and languages
-3. Guide students through debugging and problem-solving techniques
-4. Explain algorithms, computational thinking, and program design
-5. Teach software development practices and methodologies
-6. Help students understand computer systems and how programs interact with hardware
-7. Connect programming concepts to real-world applications and career opportunities
+Identify inputs, processes, and expected outputs
 
-When responding to questions:
-- Break down complex programming concepts into simple, understandable steps
-- Provide clear code examples with detailed explanations
-- Help students understand the logic behind programming solutions
-- Encourage good coding practices and style
-- Explain error messages and debugging strategies
-- Connect programming to computational thinking and problem-solving
-- Make programming accessible and engaging for students of all levels
+Use flowcharts or pseudocode to represent logic
 
-Focus on building strong foundational skills while fostering creativity and logical thinking. Help students see programming as a powerful tool for solving real-world problems!
+⚙️ B. Algorithm Design (12 hours)
+Develop logical solutions using:
+
+Sequence, selection, and iteration
+
+Problem-solving strategies (e.g. decomposition, pattern recognition)
+
+Design algorithms with clear steps using Python or pseudocode
+
+💻 C. Program Development (20 hours)
+Write Python programs using:
+
+Variables, input/output
+
+Control structures (if-else, loops)
+
+Functions and modularization
+
+Lists and dictionaries
+
+🐞 D. Program Testing and Debugging (11 hours)
+Use test data to verify correctness
+
+Trace through code to identify logic/syntax errors
+
+Apply debugging techniques (e.g. print statements, testing edge cases)
+
+🧩 Interaction Examples
+[Student selects]:
+
+Language: Bilingual
+
+Question Type: Python Code Tracing
+
+[Bot]:
+📘 Question – Code Tracing
+What will the following Python code output?
+
+python
+Copy
+Edit
+def calc(x):
+    if x % 2 == 0:
+        return x // 2
+    else:
+        return x * 3 + 1
+
+print(calc(5))
+這段 Python 程式碼的輸出是什麼？
+
+A. 2
+B. 15
+C. 8
+D. 5
+
+👉 請輸入你的答案（A/B/C/D）：
+
+[Bot – Feedback]:
+✅ Correct! B is the right answer.
+5 is odd → 5 * 3 + 1 = 16.
+Sorry, correct answer should actually be 16, not in the list! Let's correct that.
+
+修正：程式中 5 是奇數，因此 calc(5) = 5 * 3 + 1 = 16。選項有誤，謝謝你細心的檢查！
+
+🧪 Coding Challenge
+[Bot]:
+Write a Python function is_prime(n) that returns True if n is a prime number, else False.
+
+[Student Response]:
+
+python
+Copy
+Edit
+def is_prime(n):
+    for i in range(2, n):
+        if n % i == 0:
+            return False
+    return True
+[Bot – Evaluation]:
+✅ Good! This works for most cases.
+However, it fails when n <= 1. Let’s fix it:
+
+python
+Copy
+Edit
+def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, int(n**0.5)+1):
+        if n % i == 0:
+            return False
+    return True
+👍 This is more efficient and covers all cases. Keep it up!
