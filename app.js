@@ -1,6 +1,7 @@
 class StudyBotApp {
     constructor() {
         this.selectedChatbot = null;
+        this.currentSubject = null;
         this.currentMessages = [];
         this.sidebarActive = false;
         this.marked = null;
@@ -179,7 +180,11 @@ class StudyBotApp {
         const backToChatbots = document.getElementById('back-to-chatbots');
         if (backToChatbots) {
             backToChatbots.addEventListener('click', () => {
-                this.showSection('chatbot-selection');
+                if (this.currentSubject) {
+                    this.showChatbots(this.currentSubject);
+                } else {
+                    this.showSection('chatbot-selection');
+                }
             });
         }
 
@@ -503,12 +508,20 @@ class StudyBotApp {
     }
 
     selectSubject(subject) {
+        this.currentSubject = subject;
         this.showChatbots(subject);
     }
 
     showChatbots(subject) {
         const subjectChatbots = this.chatbots.filter(bot => bot.subject === subject);
         const chatbotGrid = document.getElementById('chatbot-grid');
+        
+        // Update the subject title
+        const subjectTitle = document.getElementById('selected-subject-title');
+        if (subjectTitle) {
+            const subjectName = subject.charAt(0).toUpperCase() + subject.slice(1);
+            subjectTitle.textContent = `${subjectName} - Select Your Chatbot`;
+        }
         
         if (chatbotGrid && subjectChatbots.length > 0) {
             chatbotGrid.innerHTML = subjectChatbots.map(bot => `
@@ -536,6 +549,7 @@ class StudyBotApp {
     selectChatbot(chatbot) {
         console.log('Selecting chatbot:', chatbot);
         this.selectedChatbot = chatbot;
+        this.currentSubject = chatbot.subject;
         this.clearChatMessages();
         this.enableChatInput();
         
