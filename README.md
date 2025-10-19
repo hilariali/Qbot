@@ -6,9 +6,11 @@ A comprehensive web application that helps students chat with specialized AI tut
 
 - **Multi-Subject Support**: Chinese, English, Mathematics, Science, Physics, Chemistry, Biology, History, Geography, ICT, and STEAM
 - **Specialized Chatbots**: Each subject has multiple chatbots focusing on specific topics or past paper years
-- **Export Functionality**: 
-  - Export chat history as PDF
+- **Enhanced Export Functionality**: 
+  - Export chat history as PDF with multi-page support
   - Export AI-generated summary and revision guide as PDF
+  - **NEW**: Multi-page PDF support for long summaries
+  - **NEW**: Revision-focused summaries highlighting wrong answers and corrections
 - **Thinking Process Toggle**: AI responses with thinking processes are collapsible for better readability
 - **Responsive Design**: Works on desktop and mobile devices
 
@@ -55,6 +57,9 @@ A comprehensive web application that helps students chat with specialized AI tut
 - **View Thinking Process**: Click the "Thinking Process" toggle to see AI reasoning
 - **Export Chat**: Click "Export Chat History" to save your conversation as PDF
 - **Export Summary**: Click "Export Summary & Guide" to get an AI-generated revision guide
+  - **NEW**: Automatically creates multiple pages if summary is long
+  - **NEW**: Highlights wrong answers and corrections for focused revision
+  - **NEW**: Includes questions asked and their detailed answers
 
 ### Available Chatbots
 
@@ -162,6 +167,15 @@ Modify `styles.css` to change the appearance and layout of the application.
 - Keep your API key secure and don't commit it to version control
 - Consider implementing rate limiting for production use
 - The application runs entirely in the browser - no server-side processing required
+
+## Recent Updates
+
+### October 2025 - PDF Export Enhancements
+- ✅ **Multi-Page PDF Support**: Summary PDFs now automatically span multiple pages for long content
+- ✅ **Revision-Focused Summaries**: AI summaries now highlight mistakes and wrong answers for targeted revision
+- ✅ **Enhanced Content**: Increased summary detail with questions, answers, and correction highlights
+- 📄 See [PDF_IMPROVEMENTS_SUMMARY.md](PDF_IMPROVEMENTS_SUMMARY.md) for technical details
+- 📄 See [BEFORE_AFTER_COMPARISON.md](BEFORE_AFTER_COMPARISON.md) for visual comparison
 
 ## License
 
