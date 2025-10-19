@@ -423,6 +423,9 @@ class StudyBotApp {
             { id: 'ict-programming', name: 'Programming Tutor', subject: 'ict', description: 'Learn programming fundamentals' },
             { id: 'ict-databases', name: 'Database Design', subject: 'ict', description: 'Master database concepts and SQL' },
             { id: 'ict-networks', name: 'Networking Guide', subject: 'ict', description: 'Understand computer networks' },
+            { id: 'ict-corea', name: 'CoreA', subject: 'ict', description: 'Core A: Information Processing' },
+            { id: 'ict-coreb-computersystem', name: 'CoreB_ComputerSystem', subject: 'ict', description: 'Core B: Computer System' },
+            { id: 'ict-coree', name: 'CoreE', subject: 'ict', description: 'Core E: Social and Ethical Issues' },
             { id: 'ict-2023', name: '2023 Past Papers', subject: 'ict', description: 'Practice with 2023 DSE ICT papers' },
             { id: 'ict-2024', name: '2024 Past Papers', subject: 'ict', description: 'Practice with 2024 DSE ICT papers' },
             
@@ -480,7 +483,7 @@ class StudyBotApp {
             'english-grammar', 'english-literature', 'english-writing', 'english-2023', 'english-2024',
             'math-algebra', 'math-geometry', 'math-calculus', 'math-statistics', 'math-2023', 'math-2024',
             'science-general', 'science-experiments', 'science-2023', 'science-2024',
-            'ict-programming', 'ict-databases', 'ict-networks', 'ict-2023', 'ict-2024',
+            'ict-programming', 'ict-databases', 'ict-networks', 'ict-corea', 'ict-coreb-computersystem', 'ict-coree', 'ict-2023', 'ict-2024',
             'steam-engineering', 'steam-technology', 'steam-arts', 'steam-2023', 'steam-2024',
             'physics-mechanics', 'physics-electricity', 'physics-waves', 'physics-2023', 'physics-2024',
             'chemistry-organic', 'chemistry-inorganic', 'chemistry-physical', 'chemistry-2023', 'chemistry-2024',
