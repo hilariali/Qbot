@@ -1057,12 +1057,16 @@ class StudyBotApp {
         }
 
         try {
-            // Generate summary using AI
+            // Generate summary using AI with improved prompt
             const summaryPrompt = `Please create a comprehensive study summary and revision guide based on our conversation. Include:
 1. Key topics discussed
 2. Important concepts and definitions
-3. Study tips and recommendations
-4. Practice suggestions
+3. Questions that were asked and their answers
+4. Any mistakes or misconceptions that were corrected (highlight these for revision)
+5. Study tips and recommendations
+6. Practice suggestions for improvement
+
+Focus especially on any wrong answers or misunderstandings that were clarified during the conversation, as these are important for revision purposes.
 
 Our conversation:
 ${this.currentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')}`;
@@ -1079,22 +1083,53 @@ ${this.currentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')}`;
                 model: this.config.model,
                 messages: [{ role: 'user', content: summaryPrompt }],
                 temperature: 0.3,
-                max_tokens: 1500
+                max_tokens: 2500
             });
             const summary = data.choices[0].message.content;
 
-            // Create PDF with summary
+            // Create PDF with summary and multi-page support
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
+            const pageWidth = doc.internal.pageSize.width;
+            const pageHeight = doc.internal.pageSize.height;
+            const marginLeft = 20;
+            const marginRight = 20;
+            const marginTop = 20;
+            const marginBottom = 20;
+            const maxLineWidth = pageWidth - marginLeft - marginRight;
+            const lineHeight = 7;
+            const maxLinesPerPage = Math.floor((pageHeight - marginTop - marginBottom) / lineHeight);
+            
+            let currentPage = 1;
+            let yPosition = marginTop;
+            
+            // Title on first page
             doc.setFontSize(18);
-            doc.text(`${this.selectedChatbot.name} - Study Guide`, 20, 20);
+            doc.text(`${this.selectedChatbot.name} - Study Guide`, marginLeft, yPosition);
+            yPosition += 10;
             
+            // Date
             doc.setFontSize(12);
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 35);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, marginLeft, yPosition);
+            yPosition += 15;
             
-            const lines = doc.splitTextToSize(summary, 170);
-            doc.text(lines, 20, 50);
+            // Split summary into lines
+            doc.setFontSize(11);
+            const lines = doc.splitTextToSize(summary, maxLineWidth);
+            
+            // Add lines with automatic page breaks
+            for (let i = 0; i < lines.length; i++) {
+                // Check if we need a new page
+                if (yPosition + lineHeight > pageHeight - marginBottom) {
+                    doc.addPage();
+                    currentPage++;
+                    yPosition = marginTop;
+                }
+                
+                doc.text(lines[i], marginLeft, yPosition);
+                yPosition += lineHeight;
+            }
             
             doc.save(`${this.selectedChatbot.name}_study_guide.pdf`);
             
