@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatInClass - Real-time Classroom Communication</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+</head>
+<body>
+    <div class="chatroom-container">
+        <!-- Header -->
+        <header class="chatroom-header">
+            <div class="header-content">
+                <h1>💬 ChatInClass</h1>
+                <p>Real-time communication between Teachers and Students</p>
+            </div>
+            <div class="user-info">
+                <div class="user-role" id="user-role">Guest</div>
+                <button id="role-toggle" class="role-btn">Switch Role</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="chatroom-main">
+            <!-- Sidebar with Subjects -->
+            <aside class="subjects-sidebar">
+                <h3>📖 Subjects</h3>
+                <div class="subject-list">
+                    <div class="subject-item active" data-subject="general">
+                        <span class="subject-icon">💬</span>
+                        <span>General Discussion</span>
+                        <span class="message-count">0</span>
+                    </div>
+                    <div class="subject-item" data-subject="math">
+                        <span class="subject-icon">🔢</span>
+                        <span>Mathematics</span>
+                        <span class="message-count">0</span>
+                    </div>
+                    <div class="subject-item" data-subject="english">
+                        <span class="subject-icon">🇬🇧</span>
+                        <span>English</span>
+                        <span class="message-count">0</span>
+                    </div>
+                    <div class="subject-item" data-subject="science">
+                        <span class="subject-icon">🧪</span>
+                        <span>Science</span>
+                        <span class="message-count">0</span>
+                    </div>
+                    <div class="subject-item" data-subject="physics">
+                        <span class="subject-icon">⚛️</span>
+                        <span>Physics</span>
+                        <span class="message-count">0</span>
+                    </div>
+                    <div class="subject-item" data-subject="chemistry">
+                        <span class="subject-icon">🧬</span>
+                        <span>Chemistry</span>
+                        <span class="message-count">0</span>
+                    </div>
+                    <div class="subject-item" data-subject="biology">
+                        <span class="subject-icon">🧬</span>
+                        <span>Biology</span>
+                        <span class="message-count">0</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Chat Area -->
+            <main class="chat-area">
+                <div class="chat-header">
+                    <h2 id="current-subject">General Discussion</h2>
+                    <div class="online-users">
+                        <span class="online-indicator">🟢</span>
+                        <span id="online-count">0</span> online
+                    </div>
+                </div>
+
+                <!-- Messages Container -->
+                <div class="messages-container" id="messages-container">
+                    <div class="welcome-message">
+                        <div class="welcome-content">
+                            <h3>👋 Welcome to ChatInClass!</h3>
+                            <p>Teachers can post questions and announcements</p>
+                            <p>Students can ask questions and get help instantly</p>
+                            <p>Select your role and start participating!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Input -->
+                <div class="message-input-area">
+                    <div class="input-container">
+                        <textarea 
+                            id="message-input" 
+                            placeholder="Type your message here..." 
+                            rows="1"
+                            disabled
+                        ></textarea>
+                        <button id="send-message" class="send-btn" disabled>
+                            <span>📤</span>
+                        </button>
+                    </div>
+                    <div class="input-actions">
+                        <button id="attach-file" class="action-btn">📎 Attach</button>
+                        <button id="add-emoji" class="action-btn">😊 Emoji</button>
+                        <div class="typing-indicator" id="typing-indicator"></div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Online Users Panel -->
+            <aside class="users-panel">
+                <h3>👥 Online Users</h3>
+                <div class="users-list" id="users-list">
+                    <!-- Users will be populated dynamically -->
+                </div>
+                
+                <div class="quick-actions">
+                    <h4>Quick Actions</h4>
+                    <button class="quick-btn" data-action="help">🆘 Need Help</button>
+                    <button class="quick-btn" data-action="question">❓ Ask Question</button>
+                    <button class="quick-btn" data-action="announcement">📢 Announcement</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Role Selection Modal -->
+    <div class="modal-overlay" id="role-modal">
+        <div class="modal-content">
+            <h2>Select Your Role</h2>
+            <p>Choose how you want to participate in ChatInClass:</p>
+            
+            <div class="role-options">
+                <div class="role-option" data-role="teacher">
+                    <div class="role-icon">👨‍🏫</div>
+                    <h3>Teacher</h3>
+                    <p>Post questions, make announcements, and help students</p>
+                    <ul>
+                        <li>✅ Post announcements</li>
+                        <li>✅ Create discussion topics</li>
+                        <li>✅ Moderate conversations</li>
+                        <li>✅ Share resources</li>
+                    </ul>
+                </div>
+                
+                <div class="role-option" data-role="student">
+                    <div class="role-icon">👨‍🎓</div>
+                    <h3>Student</h3>
+                    <p>Ask questions, participate in discussions, and get help</p>
+                    <ul>
+                        <li>✅ Ask questions</li>
+                        <li>✅ Join discussions</li>
+                        <li>✅ Get instant help</li>
+                        <li>✅ Collaborate with peers</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="name-input">
+                <label for="user-name">Enter your name:</label>
+                <input type="text" id="user-name" placeholder="Your name..." maxlength="20">
+            </div>
+            
+            <div class="modal-actions">
+                <button id="join-chatroom" class="join-btn" disabled>Join ChatInClass</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
