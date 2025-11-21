@@ -1,3 +1,3 @@
-key:sk-UVKYLhiNf0MKXRqbnDiehA
-model:Meta-Llama-4-Maverick-17B-128E-Instruct-FP8
-baseURL:https://chatapi.akash.network/api/v1
+key:akml-Vtj2MLCX0mO9Cn8wMH9m6Jh3lecAfMic
+model:meta-llama/Llama-3.3-70B-Instruct
+baseURL:https://api.akashml.com/v1/chat/completions
