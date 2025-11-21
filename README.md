@@ -27,9 +27,11 @@ A comprehensive web application that helps students chat with specialized AI tut
    ```
    key:your-api-key-here
    model:your-model-name-here
-   baseURL:https://api.example.com/v1
+   baseURL:https://api.akashml.com/v1
    ```
    StudyBot reads this file on startup, so ensure it is served from the same directory as `index.html`.
+   
+   **Note**: The application uses the Akash ML API endpoint (`https://api.akashml.com/v1/chat/completions`). The `baseURL` is set to `https://api.akashml.com/v1` and the application automatically appends `/chat/completions` to this URL when making API requests.
 
 3. **Serve Files**: Use a local web server to serve the files:
    ```bash
