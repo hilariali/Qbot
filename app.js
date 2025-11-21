@@ -9,7 +9,7 @@ class StudyBotApp {
         this.chatbotPrompts = {};
         this.config = {
             apiKey: 'sk-UVKYLhiNf0MKXRqbnDiehA',
-            baseURL: 'https://chatapi.akash.network/api/v1',
+            baseURL: 'https://api.akashml.com/v1',
             model: 'Meta-Llama-4-Maverick-17B-128E-Instruct-FP8'
         };
     }
@@ -1143,7 +1143,7 @@ ${this.currentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n')}`;
     async testAPI() {
         console.log('🧪 Testing API directly...');
         try {
-            const response = await fetch('https://chatapi.akash.network/api/v1/chat/completions', {
+            const response = await fetch('https://api.akashml.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
