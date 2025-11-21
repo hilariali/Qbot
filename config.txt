@@ -1,3 +1,3 @@
 key:akml-Vtj2MLCX0mO9Cn8wMH9m6Jh3lecAfMic
 model:meta-llama/Llama-3.3-70B-Instruct
-baseURL:https://api.akashml.com/v1/chat/completions
+baseURL:https://api.akashml.com/v1/
